@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Единое окно AuylTelecom — демо</title>
+<meta name="description" content="Демо-прототип CRM AuylTelecom: единое окно оператора, воронка, карточка клиента и аналитика. Синтетические демо-данные, без бэкенда.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%230f6e63'/%3E%3Cpath d='M5 19V13M11 19V9M17 19V5' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Golos+Text:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#eef4f1; --surface:#ffffff; --surface-alt:#e2ece8; --surface-sunken:#e9f1ed;
+    --border:#cddad4; --border-soft:#dde7e2;
+    --text:#152420; --text-muted:#5c6d66; --text-faint:#89968f;
+    --accent:#0f6e63; --accent-strong:#0a4f47; --accent-soft:#daeeea; --accent-contrast:#ffffff;
+    --good:#2e7d46; --good-soft:#e0f2e4;
+    --warn:#a8690a; --warn-soft:#faecd7;
+    --critical:#c13b2e; --critical-soft:#fbe1de;
+    --info:#3661a3; --info-soft:#e2eaf7;
+    --ch-website:#0f6e63; --ch-call:#4f6488; --ch-whatsapp:#3c8c5e; --ch-instagram:#a6416b; --ch-tiktok:#494956;
+    --shadow-s:0 1px 2px rgba(15,35,28,.07);
+    --shadow-m:0 10px 30px -14px rgba(15,35,28,.35);
+    --radius-s:6px; --radius-m:10px; --radius-l:18px;
+    --font-display:'Unbounded',system-ui,sans-serif;
+    --font-body:'Golos Text',system-ui,-apple-system,sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,'Cascadia Code',monospace;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0f1c18; --surface:#16241f; --surface-alt:#1c3129; --surface-sunken:#122019;
+      --border:#2b463c; --border-soft:#213a32;
+      --text:#e8f2ee; --text-muted:#9fb6ac; --text-faint:#6f887d;
+      --accent:#52d4bd; --accent-strong:#7ee4d2; --accent-soft:#1c443c; --accent-contrast:#062119;
+      --good:#63c684; --good-soft:#173829;
+      --warn:#e3a542; --warn-soft:#3b2f18;
+      --critical:#f0776a; --critical-soft:#3d211d;
+      --info:#82aeee; --info-soft:#1c2f4c;
+      --ch-website:#52d4bd; --ch-call:#9db4dc; --ch-whatsapp:#7fd19c; --ch-instagram:#e390b3; --ch-tiktok:#c7c8d6;
+      --shadow-s:0 1px 2px rgba(0,0,0,.3); --shadow-m:0 14px 34px -14px rgba(0,0,0,.6);
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1c18; --surface:#16241f; --surface-alt:#1c3129; --surface-sunken:#122019;
+    --border:#2b463c; --border-soft:#213a32;
+    --text:#e8f2ee; --text-muted:#9fb6ac; --text-faint:#6f887d;
+    --accent:#52d4bd; --accent-strong:#7ee4d2; --accent-soft:#1c443c; --accent-contrast:#062119;
+    --good:#63c684; --good-soft:#173829;
+    --warn:#e3a542; --warn-soft:#3b2f18;
+    --critical:#f0776a; --critical-soft:#3d211d;
+    --info:#82aeee; --info-soft:#1c2f4c;
+    --ch-website:#52d4bd; --ch-call:#9db4dc; --ch-whatsapp:#7fd19c; --ch-instagram:#e390b3; --ch-tiktok:#c7c8d6;
+    --shadow-s:0 1px 2px rgba(0,0,0,.3); --shadow-m:0 14px 34px -14px rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+
+  *,*::before,*::after{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{margin:0;font-family:var(--font-display);letter-spacing:.01em;text-wrap:balance;}
+  p{margin:0;}
+  button{font:inherit;color:inherit;}
+  input,select,textarea{font:inherit;color:inherit;}
+  a{color:inherit;}
+  ::selection{background:var(--accent-soft);}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px;}
+  .mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums;}
+  .scrollx{overflow-x:auto;}
+
+  #shell{display:flex;min-height:100vh;}
+
+  /* ---------- Sidebar ---------- */
+  #sidebar{
+    width:248px;flex:none;background:var(--surface);border-right:1px solid var(--border);
+    display:flex;flex-direction:column;padding:20px 14px;gap:18px;position:sticky;top:0;height:100vh;
+  }
+  .brand{display:flex;align-items:center;gap:10px;padding:2px 6px 8px;}
+  .brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(155deg,var(--accent),var(--accent-strong));display:flex;align-items:center;justify-content:center;flex:none;box-shadow:var(--shadow-s);}
+  .brand-mark svg{width:19px;height:19px;}
+  .brand-text{display:flex;flex-direction:column;line-height:1.15;}
+  .brand-text b{font-family:var(--font-display);font-size:14.5px;font-weight:700;}
+  .brand-text span{font-size:10.5px;color:var(--text-muted);letter-spacing:.04em;text-transform:uppercase;}
+
+  .role-box{background:var(--surface-alt);border:1px solid var(--border-soft);border-radius:var(--radius-m);padding:10px;display:flex;flex-direction:column;gap:8px;}
+  .role-box label{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);font-weight:600;}
+  select.role-select, select.identity-select{
+    width:100%;padding:7px 8px;border-radius:var(--radius-s);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;font-weight:600;
+  }
+
+  nav.nav{display:flex;flex-direction:column;gap:2px;flex:1;}
+  .nav-item{
+    display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-s);cursor:pointer;
+    color:var(--text-muted);font-weight:600;font-size:13.5px;border:1px solid transparent;background:none;text-align:left;width:100%;
+  }
+  .nav-item:hover{background:var(--surface-alt);color:var(--text);}
+  .nav-item.active{background:var(--accent-soft);color:var(--accent-strong);}
+  .nav-item .dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.55;flex:none;}
+  .nav-item .count{margin-left:auto;font-family:var(--font-mono);font-size:11px;background:var(--surface);border:1px solid var(--border-soft);padding:1px 6px;border-radius:20px;color:var(--text-muted);}
+  .nav-item .count.hot{background:var(--critical-soft);color:var(--critical);border-color:transparent;}
+  .nav-item.locked{opacity:.5;}
+  .nav-item.locked:hover{background:none;color:var(--text-muted);}
+
+  .side-foot{display:flex;flex-direction:column;gap:8px;}
+  .compliance-card{background:var(--surface-sunken);border:1px solid var(--border-soft);border-radius:var(--radius-m);padding:10px;font-size:11.5px;color:var(--text-muted);display:flex;flex-direction:column;gap:6px;}
+  .compliance-card .row{display:flex;align-items:flex-start;gap:6px;}
+  .compliance-card svg{width:12px;height:12px;flex:none;margin-top:2px;color:var(--accent);}
+  .link-btn{background:none;border:none;padding:0;color:var(--accent);font-weight:600;font-size:11.5px;cursor:pointer;text-align:left;}
+  .link-btn:hover{text-decoration:underline;}
+
+  /* ---------- Main ---------- */
+  #main{flex:1;min-width:0;display:flex;flex-direction:column;}
+  #topbar{
+    position:sticky;top:0;z-index:5;background:var(--bg);
+    display:flex;align-items:center;gap:14px;padding:18px 26px 14px;border-bottom:1px solid var(--border-soft);
+    backdrop-filter:saturate(1.1);
+  }
+  #view-title{font-size:19px;font-weight:700;}
+  #view-sub{font-size:12px;color:var(--text-muted);margin-top:2px;}
+  .topbar-title-wrap{display:flex;flex-direction:column;gap:1px;}
+  .search-wrap{position:relative;margin-left:auto;width:260px;}
+  .search-wrap svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-faint);}
+  #search-input{width:100%;padding:8px 10px 8px 30px;border-radius:20px;border:1px solid var(--border);background:var(--surface);}
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:20px;border:1px solid var(--border);
+    background:var(--surface);cursor:pointer;font-weight:600;font-size:13px;white-space:nowrap;
+  }
+  .btn:hover{border-color:var(--accent);}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:var(--accent-contrast);}
+  .btn-primary:hover{background:var(--accent-strong);border-color:var(--accent-strong);}
+  .btn-ghost{background:none;border-color:transparent;}
+  .btn-ghost:hover{background:var(--surface-alt);border-color:transparent;}
+  .btn-danger{color:var(--critical);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .btn:disabled:hover{border-color:var(--border);}
+  .btn-sm{padding:5px 10px;font-size:12px;border-radius:16px;}
+
+  #view-content{padding:6px 26px 40px;flex:1;}
+
+  /* ---------- Chips / badges ---------- */
+  .chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:700;letter-spacing:.02em;white-space:nowrap;}
+  .chip-ch{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.03em;color:#fff;padding:2.5px 7px;}
+  .chip-stage{background:var(--surface-alt);color:var(--text-muted);border:1px solid var(--border-soft);}
+  .chip-good{background:var(--good-soft);color:var(--good);}
+  .chip-warn{background:var(--warn-soft);color:var(--warn);}
+  .chip-critical{background:var(--critical-soft);color:var(--critical);}
+  .chip-info{background:var(--info-soft);color:var(--info);}
+  .pip{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none;}
+
+  /* ---------- Cards / lists ---------- */
+  .stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:10px;margin:14px 0 20px;}
+  .stat-tile{background:var(--surface);border:1px solid var(--border-soft);border-radius:var(--radius-m);padding:13px 15px;box-shadow:var(--shadow-s);}
+  .stat-tile .label{font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+  .stat-tile .value{font-family:var(--font-display);font-size:26px;font-weight:700;margin-top:5px;}
+  .stat-tile .value.critical{color:var(--critical);}
+  .stat-tile .value.good{color:var(--good);}
+  .stat-tile .sub{font-size:11px;color:var(--text-faint);margin-top:3px;}
+
+  .panel{background:var(--surface);border:1px solid var(--border-soft);border-radius:var(--radius-l);box-shadow:var(--shadow-s);}
+  .panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:16px 18px 4px;}
+  .panel-head h3{font-size:14.5px;font-weight:700;}
+  .panel-head .hint{font-size:11.5px;color:var(--text-faint);}
+  .panel-body{padding:14px 18px 18px;}
+
+  .lead-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius-m);border:1px solid var(--border-soft);background:var(--surface);cursor:pointer;margin-bottom:8px;}
+  .lead-row:hover{border-color:var(--accent);}
+  .lead-row .who{display:flex;flex-direction:column;gap:2px;min-width:150px;}
+  .lead-row .who b{font-size:13.5px;}
+  .lead-row .who span{font-size:11.5px;color:var(--text-muted);font-family:var(--font-mono);}
+  .lead-row .msg{flex:1;min-width:0;font-size:12.5px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lead-row .meta{display:flex;align-items:center;gap:8px;flex:none;}
+  .empty-state{padding:40px 20px;text-align:center;color:var(--text-faint);font-size:13px;}
+  .skeleton{background:linear-gradient(90deg,var(--surface-alt),var(--surface-sunken),var(--surface-alt));background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--radius-m);height:58px;margin-bottom:8px;}
+  @keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+  @media (prefers-reduced-motion:reduce){.skeleton{animation:none;}}
+
+  /* ---------- Kanban ---------- */
+  .kanban{display:flex;gap:12px;overflow-x:auto;padding-bottom:10px;align-items:flex-start;}
+  .kcol{flex:none;width:250px;background:var(--surface-sunken);border:1px solid var(--border-soft);border-radius:var(--radius-l);padding:10px;min-height:120px;}
+  .kcol.dragover{outline:2px dashed var(--accent);outline-offset:-4px;}
+  .kcol-head{display:flex;align-items:center;justify-content:space-between;padding:4px 4px 10px;}
+  .kcol-head b{font-family:var(--font-display);font-size:12.5px;font-weight:700;}
+  .kcol-head .n{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);background:var(--surface);border:1px solid var(--border-soft);padding:1px 7px;border-radius:20px;}
+  .kcard{background:var(--surface);border:1px solid var(--border-soft);border-radius:var(--radius-m);padding:10px 11px;margin-bottom:8px;cursor:grab;box-shadow:var(--shadow-s);}
+  .kcard:active{cursor:grabbing;}
+  .kcard b{font-size:12.5px;display:block;}
+  .kcard .phone{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);display:block;margin-top:1px;}
+  .kcard .krow{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap;}
+  .kcard .kfoot{display:flex;align-items:center;justify-content:space-between;margin-top:9px;gap:6px;}
+  .kcard .resp{font-size:11px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  /* ---------- Table ---------- */
+  table.data{width:100%;border-collapse:collapse;font-size:12.5px;}
+  table.data th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-faint);font-weight:700;padding:0 10px 8px;border-bottom:1px solid var(--border-soft);white-space:nowrap;}
+  table.data td{padding:10px 10px;border-bottom:1px solid var(--border-soft);vertical-align:middle;}
+  table.data tbody tr{cursor:pointer;}
+  table.data tbody tr:hover td{background:var(--surface-alt);}
+  table.data td.num{font-family:var(--font-mono);}
+
+  /* ---------- Modal ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(10,20,17,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;}
+  .modal{background:var(--surface);border-radius:var(--radius-l);width:560px;max-width:100%;max-height:88vh;display:flex;flex-direction:column;box-shadow:var(--shadow-m);}
+  .modal.wide{width:700px;}
+  .modal-head{display:flex;align-items:flex-start;justify-content:space-between;padding:18px 20px 12px;border-bottom:1px solid var(--border-soft);}
+  .modal-head h3{font-size:16px;}
+  .modal-head .x{background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px;border-radius:6px;}
+  .modal-head .x:hover{background:var(--surface-alt);color:var(--text);}
+  .modal-body{padding:16px 20px;overflow-y:auto;}
+  .modal-foot{padding:14px 20px;border-top:1px solid var(--border-soft);display:flex;justify-content:flex-end;gap:8px;}
+
+  .field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+  .field label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.03em;}
+  .field input,.field select,.field textarea{padding:8px 10px;border-radius:var(--radius-s);border:1px solid var(--border);background:var(--surface);width:100%;}
+  .field textarea{resize:vertical;min-height:60px;}
+  .field .note{font-size:11px;color:var(--text-faint);}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  fieldset{border:1px solid var(--border-soft);border-radius:var(--radius-m);padding:12px 12px 4px;margin:0 0 14px;}
+  legend{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--text-muted);padding:0 6px;}
+
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--border-soft);margin-bottom:14px;}
+  .tab{padding:8px 12px;font-size:12.5px;font-weight:600;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;}
+  .tab.active{color:var(--accent-strong);border-bottom-color:var(--accent);}
+
+  .timeline{display:flex;flex-direction:column;gap:10px;}
+  .tl-item{display:flex;gap:10px;}
+  .tl-item .t{font-family:var(--font-mono);font-size:10.5px;color:var(--text-faint);width:88px;flex:none;padding-top:2px;}
+  .tl-item .c{flex:1;font-size:12.5px;}
+  .tl-item .c .actor{color:var(--text-muted);font-size:11px;font-weight:600;}
+
+  .kv{display:grid;grid-template-columns:120px 1fr;gap:6px 10px;font-size:12.5px;}
+  .kv dt{color:var(--text-faint);}
+  .kv dd{margin:0;}
+
+  /* ---------- Toast ---------- */
+  #toast-root{position:fixed;bottom:20px;right:20px;z-index:100;display:flex;flex-direction:column;gap:8px;}
+  .toast{background:var(--text);color:var(--bg);padding:10px 16px;border-radius:var(--radius-m);font-size:12.5px;font-weight:600;box-shadow:var(--shadow-m);max-width:320px;animation:toastin .18s ease-out;}
+  .toast.err{background:var(--critical);color:#fff;}
+  @keyframes toastin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+  /* ---------- Analytics charts ---------- */
+  .funnel-bar{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+  .funnel-bar .lbl{width:150px;flex:none;font-size:12px;font-weight:600;}
+  .funnel-bar .track{flex:1;height:20px;background:var(--surface-alt);border-radius:6px;overflow:hidden;position:relative;}
+  .funnel-bar .fill{height:100%;background:var(--accent);border-radius:6px;}
+  .funnel-bar .n{width:110px;flex:none;text-align:right;font-family:var(--font-mono);font-size:11.5px;color:var(--text-muted);}
+
+  .matrix{border-collapse:separate;border-spacing:3px;font-size:11.5px;}
+  .matrix th{font-weight:600;color:var(--text-muted);padding:4px 8px;font-size:10.5px;text-align:center;}
+  .matrix th.rowh{text-align:right;}
+  .matrix td{text-align:center;padding:8px 6px;border-radius:6px;font-family:var(--font-mono);min-width:64px;}
+
+  .hbar-group{display:flex;flex-direction:column;gap:12px;}
+  .hbar-row .hlbl{display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:4px;}
+  .hbar-row .stack{display:flex;height:16px;border-radius:5px;overflow:hidden;background:var(--surface-alt);}
+  .hbar-row .seg{height:100%;}
+  .legend{display:flex;flex-wrap:wrap;gap:10px 14px;margin-top:12px;font-size:11px;color:var(--text-muted);}
+  .legend .item{display:flex;align-items:center;gap:5px;}
+  .legend .sw{width:9px;height:9px;border-radius:2px;}
+
+  .cpl-row{display:grid;grid-template-columns:110px 1fr 90px 100px;align-items:center;gap:10px;margin-bottom:10px;}
+  .cpl-row .name{font-size:12px;font-weight:600;}
+  .cpl-row .track{height:14px;background:var(--surface-alt);border-radius:5px;overflow:hidden;}
+  .cpl-row .fill{height:100%;}
+  .cpl-row .val{font-family:var(--font-mono);font-size:11.5px;text-align:right;}
+  .cpl-row input{width:100%;padding:5px 7px;border-radius:6px;border:1px solid var(--border);background:var(--surface);font-family:var(--font-mono);font-size:11.5px;}
+
+  .locked-panel{padding:50px 30px;text-align:center;}
+  .locked-panel svg{width:30px;height:30px;color:var(--text-faint);margin-bottom:10px;}
+  .locked-panel h3{font-size:15px;margin-bottom:6px;}
+  .locked-panel p{color:var(--text-muted);font-size:12.5px;max-width:360px;margin:0 auto;}
+
+  .grid2{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;align-items:start;}
+  @media (max-width:1100px){.grid2{grid-template-columns:1fr;}}
+
+  .menu-btn{display:none;}
+  #sidebar-backdrop{display:none;}
+  @media (max-width:860px){
+    #sidebar{position:fixed;left:0;top:0;bottom:0;z-index:40;transform:translateX(-100%);transition:transform .2s;box-shadow:var(--shadow-m);}
+    #sidebar.open{transform:none;}
+    #sidebar.open + #sidebar-backdrop, #sidebar-backdrop.open{display:block;position:fixed;inset:0;background:rgba(10,20,17,.4);z-index:39;}
+    .search-wrap{width:150px;}
+    .menu-btn{display:inline-flex;}
+  }
+  #demo-banner{background:var(--accent);color:var(--accent-contrast);font-size:11.5px;font-weight:600;text-align:center;padding:6px 12px;}
+  #demo-banner a{color:inherit;text-decoration:underline;}
+</style>
+</head>
+<body>
+<div id="demo-banner">Демо-прототип · синтетические данные · изменения сохраняются только в этом браузере — <a href="https://github.com/YuliyaRV/auyltelecom-crm-demo" target="_blank" rel="noopener">исходный код на GitHub</a></div>
+<div id="shell">
+  <aside id="sidebar"></aside>
+  <div id="sidebar-backdrop"></div>
+  <div id="main">
+    <header id="topbar"></header>
+    <div id="view-content"></div>
+  </div>
+</div>
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================= CONFIG ============================= */
+var MIN=60000, HOUR=3600000, DAY=86400000;
+var STAGES=[
+  {key:'inquiry',label:'Обращение'},
+  {key:'lead',label:'Лид'},
+  {key:'assigned',label:'Назначено подключение'},
+  {key:'install',label:'Выезд/монтаж'},
+  {key:'connected',label:'Подключён'},
+  {key:'closed',label:'Закрыт / Отказ'}
+];
+var STAGE_ORDER=STAGES.map(function(s){return s.key;});
+var MAIN_ORDER=['inquiry','lead','assigned','install','connected'];
+var STAGE_LABEL={}; STAGES.forEach(function(s){STAGE_LABEL[s.key]=s.label;});
+
+var CHANNELS=[
+  {key:'website',label:'Сайт',short:'САЙТ'},
+  {key:'call_missed',label:'Пропущенный звонок',short:'ЗВОНОК'},
+  {key:'whatsapp',label:'WhatsApp',short:'WA'},
+  {key:'instagram',label:'Instagram',short:'IG'},
+  {key:'tiktok',label:'TikTok',short:'TT'}
+];
+var CHANNEL_MAP={}; CHANNELS.forEach(function(c){CHANNEL_MAP[c.key]=c;});
+var SLA_TARGET_MIN={website:30,call_missed:10,whatsapp:15,instagram:15,tiktok:15};
+
+var REFUSAL_REASONS=['цена не устроила','скорость/тариф не устроили','ушёл к конкуренту','передумал','не отвечает / недозвон','нет техвозможности','другое'];
+var TECH_CHECK=[{key:'possible',label:'Возможно'},{key:'none',label:'Нет техвозможности'},{key:'clarify',label:'Требуется уточнение'}];
+var TECH_LABEL={}; TECH_CHECK.forEach(function(t){TECH_LABEL[t.key]=t.label;});
+var VISIT_STATUS=[{key:'planned',label:'Запланирован'},{key:'enroute',label:'В пути'},{key:'done',label:'Выполнен'},{key:'postponed',label:'Перенесён'},{key:'failed',label:'Сорван'}];
+var VISIT_STATUS_LABEL={}; VISIT_STATUS.forEach(function(v){VISIT_STATUS_LABEL[v.key]=v.label;});
+var VISIT_RESULT=[{key:'success',label:'Успешно подключено'},{key:'no_tech',label:'Нет техвозможности на месте'},{key:'client_absent',label:'Клиент отсутствовал'},{key:'other',label:'Другое'}];
+var VISIT_RESULT_LABEL={}; VISIT_RESULT.forEach(function(v){VISIT_RESULT_LABEL[v.key]=v.label;});
+
+var ROLES=['Контакт-центр','Хантер','Агент','Регпредставитель','Руководитель'];
+var HUNTER_CAPACITY=3;
+var ESCALATION_MS=45*MIN;
+
+var PERM_MATRIX=[
+  ['Просмотр заявки в своей зоне ответственности','✔','✔','✔','✔','✔'],
+  ['Изменение тарифа','—','по согласованию','—','✔','✔'],
+  ['Закрытие сделки («Подключён»)','—','✔','—','✔','✔'],
+  ['Просмотр полного ИИН','по роли','маскировано','маскировано','✔','✔'],
+  ['Просмотр дашборда руководителя','—','—','—','региональный срез','полный']
+];
+
+/* ============================= DEMO SEED (static, for GitHub Pages — no live backend here) ============================= */
+/* GitHub Pages cannot run Claude's artifact database, so this file ships a synthetic
+   demo dataset instead. Nothing here is a real customer record. Edits made by a visitor
+   are kept only in that browser's localStorage — never sent anywhere, never shared. */
+var DEMO_NOW=Date.now();
+function demoT(offsetMs){ return DEMO_NOW+offsetMs; }
+var DEMO_SEED=(function(){
+  var MIN=60000,HOUR=3600000,DAY=86400000;
+  var hunters=[
+    {name:'Азамат Серіков',snps:['Қаскелең','Шамалған']},
+    {name:'Нұрлан Ахметов',snps:['Талғар','Бесағаш']},
+    {name:'Данияр Қасымов',snps:['Өтеген батыр']}
+  ];
+  var region={name:'Айгерим Жумабекова',snps:['Қаскелең','Шамалған','Талғар']};
+  var adspend={website:180000,call_missed:0,whatsapp:95000,instagram:120000,tiktok:0};
+  var leads=[
+    {id:'lead-001',fio:'Не указан',phone:'+77071112233',iin:null,address:null,snp:'Қаскелең',bs:'BS-014-KSK',channel:'website',source:'реклама',utm:'fb_kaskelen_sep',consentDate:null,consentMethod:null,tariffBefore:null,tariff:null,equipmentModel:null,equipmentSerial:null,documentAttached:false,responsible:null,lastOperator:'Контакт-центр',stage:'inquiry',techCheck:null,refusalReason:null,refusalComment:null,visit:null,assignment:null,reactivationCount:0,createdAt:demoT(-5*MIN),updatedAt:demoT(-5*MIN),lastInboundAt:demoT(-5*MIN),stageHistory:[{stage:'inquiry',at:demoT(-5*MIN)}],history:[{at:demoT(-5*MIN),actor:'Контакт-центр',text:'Заявка с сайта: форма обратной связи, интересует подключение'}]},
+    {id:'lead-002',fio:'Серік Болатов',phone:'+77015556677',iin:null,address:null,snp:'Талғар',bs:'BS-009-TLG',channel:'call_missed',source:'звонок',utm:null,consentDate:null,consentMethod:null,tariffBefore:null,tariff:null,equipmentModel:null,equipmentSerial:null,documentAttached:false,responsible:null,lastOperator:'Контакт-центр',stage:'inquiry',techCheck:null,refusalReason:null,refusalComment:null,visit:null,assignment:null,reactivationCount:0,createdAt:demoT(-25*MIN),updatedAt:demoT(-25*MIN),lastInboundAt:demoT(-25*MIN),stageHistory:[{stage:'inquiry',at:demoT(-25*MIN)}],history:[{at:demoT(-25*MIN),actor:'Контакт-центр',text:'Пропущенный звонок — требуется перезвон'}]},
+    {id:'lead-003',fio:'Айнұр Тлеубердиева',phone:'+77051239988',iin:'880512400123',address:'ул. Абая 14',snp:'Шамалған',bs:'BS-021-SHM',channel:'whatsapp',source:'органика',utm:null,consentDate:'2026-09-02',consentMethod:'через мессенджер',tariffBefore:null,tariff:null,equipmentModel:null,equipmentSerial:null,documentAttached:false,responsible:null,lastOperator:'Контакт-центр',stage:'lead',techCheck:'possible',refusalReason:null,refusalComment:null,visit:null,assignment:null,reactivationCount:0,createdAt:demoT(-2*DAY),updatedAt:demoT(-3*HOUR),lastInboundAt:demoT(-3*HOUR),stageHistory:[{stage:'inquiry',at:demoT(-2*DAY)},{stage:'lead',at:demoT(-2*DAY+2*HOUR)}],history:[{at:demoT(-2*DAY),actor:'Контакт-центр',text:'Обращение в WhatsApp: хочет подключить интернет'},{at:demoT(-2*DAY+2*HOUR),actor:'Контакт-центр',text:'Согласие на обработку ПДн получено, техвозможность подтверждена по БС-021'},{at:demoT(-3*HOUR),actor:'Контакт-центр',text:'Уточнила сроки подключения'}]},
+    {id:'lead-004',fio:'Марат Жаксыбеков',phone:'+77473332211',iin:'750812301122',address:'пер. Достык 3',snp:'Қаскелең',bs:'BS-014-KSK',channel:'website',source:'органика',utm:null,consentDate:'2026-08-31',consentMethod:'через форму',tariffBefore:null,tariff:'Село 50',equipmentModel:null,equipmentSerial:null,documentAttached:false,responsible:'Азамат Серіков',lastOperator:'Контакт-центр',stage:'assigned',techCheck:'possible',refusalReason:null,refusalComment:null,visit:null,assignment:{hunter:'Азамат Серіков',queuedAt:null,escalated:false},reactivationCount:0,createdAt:demoT(-4*DAY),updatedAt:demoT(-4*DAY+1*DAY),lastInboundAt:demoT(-4*DAY+1*DAY),stageHistory:[{stage:'inquiry',at:demoT(-4*DAY)},{stage:'lead',at:demoT(-4*DAY+3*HOUR)},{stage:'assigned',at:demoT(-4*DAY+1*DAY)}],history:[{at:demoT(-4*DAY),actor:'Контакт-центр',text:'Заявка с сайта на подключение'},{at:demoT(-4*DAY+3*HOUR),actor:'Контакт-центр',text:'Техвозможность подтверждена, согласие получено'},{at:demoT(-4*DAY+1*DAY),actor:'Регпредставитель · Айгерим Жумабекова',text:'Назначен хантер: Азамат Серіков'}]},
+    {id:'lead-005',fio:'Гүлмира Сатыбалдиева',phone:'+77002221144',iin:null,address:null,snp:'Талғар',bs:'BS-009-TLG',channel:'whatsapp',source:'органика',utm:null,consentDate:'2026-08-26',consentMethod:'через мессенджер',tariffBefore:null,tariff:null,equipmentModel:null,equipmentSerial:null,documentAttached:false,responsible:null,lastOperator:'Контакт-центр',stage:'assigned',techCheck:'possible',refusalReason:null,refusalComment:null,visit:null,assignment:{hunter:null,queuedAt:demoT(-2*HOUR),escalated:false},reactivationCount:0,createdAt:demoT(-1*DAY),updatedAt:demoT(-2*HOUR),lastInboundAt:demoT(-2*HOUR),stageHistory:[{stage:'inquiry',at:demoT(-1*DAY)},{stage:'lead',at:demoT(-1*DAY+2*HOUR)},{stage:'assigned',at:demoT(-2.2*HOUR)}],history:[{at:demoT(-1*DAY),actor:'Контакт-центр',text:'Обращение в WhatsApp'},{at:demoT(-1*DAY+2*HOUR),actor:'Контакт-центр',text:'Техвозможность подтверждена'},{at:demoT(-2.2*HOUR),actor:'Контакт-центр',text:'Готова к назначению — все хантеры по Талғар заняты, заявка в очереди'}]},
+    {id:'lead-006',fio:'Бекзат Оспанов',phone:'+77086667788',iin:'860719300111',address:'ул. Жеңіс 9',snp:'Бесағаш',bs:'BS-033-BSG',channel:'instagram',source:'реклама',utm:'ig_besagash_aug',consentDate:'2026-08-29',consentMethod:'через мессенджер',tariffBefore:null,tariff:'Село 30',equipmentModel:null,equipmentSerial:null,documentAttached:false,responsible:'Нұрлан Ахметов',lastOperator:'Контакт-центр',stage:'install',techCheck:'possible',refusalReason:null,refusalComment:null,visit:{status:'planned',plannedAt:demoT(1*DAY),postponeReason:null,executor:'Нұрлан Ахметов',result:null,resultComment:null},assignment:{hunter:'Нұрлан Ахметов',queuedAt:null,escalated:false},reactivationCount:0,createdAt:demoT(-6*DAY),updatedAt:demoT(-3*DAY),lastInboundAt:demoT(-3*DAY),stageHistory:[{stage:'inquiry',at:demoT(-6*DAY)},{stage:'lead',at:demoT(-6*DAY+4*HOUR)},{stage:'assigned',at:demoT(-6*DAY+1*DAY)},{stage:'install',at:demoT(-3*DAY)}],history:[{at:demoT(-6*DAY),actor:'Контакт-центр',text:'Обращение в Instagram Direct'},{at:demoT(-6*DAY+1*DAY),actor:'Хантер · Нұрлан Ахметов',text:'Назначен исполнителем'},{at:demoT(-3*DAY),actor:'Хантер · Нұрлан Ахметов',text:'Выезд запланирован'}]},
+    {id:'lead-007',fio:'Данагүл Есімова',phone:'+77772223344',iin:'910228400987',address:'ул. Сарайшық 21',snp:'Өтеген батыр',bs:'BS-045-OTB',channel:'website',source:'органика',utm:null,consentDate:'2026-08-27',consentMethod:'через форму',tariffBefore:null,tariff:'Село 50',equipmentModel:null,equipmentSerial:null,documentAttached:false,responsible:'Данияр Қасымов',lastOperator:'Контакт-центр',stage:'install',techCheck:'possible',refusalReason:null,refusalComment:null,visit:{status:'postponed',plannedAt:demoT(3*DAY),postponeReason:'Клиент попросил перенести на выходные',executor:'Данияр Қасымов',result:null,resultComment:null},assignment:{hunter:'Данияр Қасымов',queuedAt:null,escalated:false},reactivationCount:0,createdAt:demoT(-8*DAY),updatedAt:demoT(-4*DAY),lastInboundAt:demoT(-4*DAY),stageHistory:[{stage:'inquiry',at:demoT(-8*DAY)},{stage:'lead',at:demoT(-8*DAY+6*HOUR)},{stage:'assigned',at:demoT(-8*DAY+1.5*DAY)},{stage:'install',at:demoT(-4*DAY)}],history:[{at:demoT(-8*DAY),actor:'Контакт-центр',text:'Заявка с сайта'},{at:demoT(-8*DAY+1.5*DAY),actor:'Хантер · Данияр Қасымов',text:'Назначен исполнителем'},{at:demoT(-4*DAY),actor:'Хантер · Данияр Қасымов',text:'Выезд перенесён по просьбе клиента'}]},
+    {id:'lead-008',fio:'Ләззат Нұрланқызы',phone:'+77011119922',iin:'920304401234',address:'ул. Абылай хана 7',snp:'Қаскелең',bs:'BS-014-KSK',channel:'instagram',source:'реклама',utm:'ig_kaskelen_aug',consentDate:'2026-08-26',consentMethod:'через мессенджер',tariffBefore:null,tariff:'Село 50',equipmentModel:'ONT HG8245H',equipmentSerial:'HW48213390',documentAttached:true,responsible:'Азамат Серіков',lastOperator:'Хантер · Азамат Серіков',stage:'connected',techCheck:'possible',refusalReason:null,refusalComment:null,visit:{status:'done',plannedAt:demoT(-10*DAY+3*DAY),postponeReason:null,executor:'Азамат Серіков',result:'success',resultComment:'Подключено без замечаний'},assignment:{hunter:'Азамат Серіков',queuedAt:null,escalated:false},reactivationCount:0,createdAt:demoT(-10*DAY),updatedAt:demoT(-5*DAY),lastInboundAt:demoT(-5*DAY),stageHistory:[{stage:'inquiry',at:demoT(-10*DAY)},{stage:'lead',at:demoT(-10*DAY+3*HOUR)},{stage:'assigned',at:demoT(-10*DAY+1*DAY)},{stage:'install',at:demoT(-10*DAY+3*DAY)},{stage:'connected',at:demoT(-5*DAY)}],history:[{at:demoT(-10*DAY),actor:'Контакт-центр',text:'Обращение в Instagram Direct'},{at:demoT(-10*DAY+3*DAY),actor:'Хантер · Азамат Серіков',text:'Выезд выполнен'},{at:demoT(-5*DAY),actor:'Хантер · Азамат Серіков',text:'Клиент подключён, акт приёма-передачи подписан'}]},
+    {id:'lead-009',fio:'Тимур Асқаров',phone:'+77475557766',iin:'870115300455',address:'ул. Тәуелсіздік 2',snp:'Талғар',bs:'BS-009-TLG',channel:'website',source:'органика',utm:null,consentDate:'2026-08-21',consentMethod:'через форму',tariffBefore:null,tariff:'Село 30',equipmentModel:'ONT HG8245H',equipmentSerial:'HW48219981',documentAttached:true,responsible:'Нұрлан Ахметов',lastOperator:'Хантер · Нұрлан Ахметов',stage:'connected',techCheck:'possible',refusalReason:null,refusalComment:null,visit:{status:'done',plannedAt:demoT(-14*DAY+4*DAY),postponeReason:null,executor:'Нұрлан Ахметов',result:'success',resultComment:'Подключено, роутер выдан'},assignment:{hunter:'Нұрлан Ахметов',queuedAt:null,escalated:false},reactivationCount:0,createdAt:demoT(-14*DAY),updatedAt:demoT(-8*DAY),lastInboundAt:demoT(-8*DAY),stageHistory:[{stage:'inquiry',at:demoT(-14*DAY)},{stage:'lead',at:demoT(-14*DAY+8*HOUR)},{stage:'assigned',at:demoT(-14*DAY+2*DAY)},{stage:'install',at:demoT(-14*DAY+4*DAY)},{stage:'connected',at:demoT(-8*DAY)}],history:[{at:demoT(-14*DAY),actor:'Контакт-центр',text:'Заявка с сайта'},{at:demoT(-8*DAY),actor:'Хантер · Нұрлан Ахметов',text:'Клиент подключён'}]},
+    {id:'lead-010',fio:'Асель Қайратова',phone:'+77003334455',iin:null,address:null,snp:'Шамалған',bs:'BS-021-SHM',channel:'whatsapp',source:'органика',utm:null,consentDate:'2026-08-30',consentMethod:'через мессенджер',tariffBefore:null,tariff:null,equipmentModel:null,equipmentSerial:null,documentAttached:false,responsible:null,lastOperator:'Контакт-центр',stage:'closed',techCheck:'possible',refusalReason:'цена не устроила',refusalComment:null,visit:null,assignment:null,reactivationCount:0,createdAt:demoT(-5*DAY),updatedAt:demoT(-4*DAY),lastInboundAt:demoT(-5*DAY+7*HOUR),stageHistory:[{stage:'inquiry',at:demoT(-5*DAY)},{stage:'lead',at:demoT(-5*DAY+7*HOUR)},{stage:'closed',at:demoT(-4*DAY)}],history:[{at:demoT(-5*DAY),actor:'Контакт-центр',text:'Обращение в WhatsApp'},{at:demoT(-4*DAY),actor:'Контакт-центр',text:'Заявка закрыта. Причина: цена не устроила'}]},
+    {id:'lead-011',fio:'Ерлан Байтасов',phone:'+77054445566',iin:null,address:null,snp:'Бесағаш',bs:'BS-033-BSG',channel:'website',source:'органика',utm:null,consentDate:'2026-09-01',consentMethod:'через форму',tariffBefore:null,tariff:null,equipmentModel:null,equipmentSerial:null,documentAttached:false,responsible:null,lastOperator:'Контакт-центр',stage:'closed',techCheck:'none',refusalReason:'нет техвозможности',refusalComment:'Свободных портов на БС-033 нет',visit:null,assignment:null,reactivationCount:0,createdAt:demoT(-3*DAY),updatedAt:demoT(-3*DAY+5*HOUR),lastInboundAt:demoT(-3*DAY+1*HOUR),stageHistory:[{stage:'inquiry',at:demoT(-3*DAY)},{stage:'lead',at:demoT(-3*DAY+1*HOUR)},{stage:'closed',at:demoT(-3*DAY+5*HOUR)}],history:[{at:demoT(-3*DAY),actor:'Контакт-центр',text:'Заявка с сайта'},{at:demoT(-3*DAY+5*HOUR),actor:'Контакт-центр',text:'Заявка закрыта. Причина: нет техвозможности (Свободных портов на БС-033 нет)'}]},
+    {id:'lead-012',fio:'Жанна Омарова',phone:'+77016667799',iin:'830621401555',address:null,snp:'Талғар',bs:'BS-009-TLG',channel:'instagram',source:'реклама',utm:'ig_talgar_aug',consentDate:'2026-08-25',consentMethod:'через мессенджер',tariffBefore:null,tariff:null,equipmentModel:null,equipmentSerial:null,documentAttached:false,responsible:'Нұрлан Ахметов',lastOperator:'Хантер · Нұрлан Ахметов',stage:'closed',techCheck:'possible',refusalReason:'ушёл к конкуренту',refusalComment:null,visit:null,assignment:{hunter:'Нұрлан Ахметов',queuedAt:null,escalated:false},reactivationCount:0,createdAt:demoT(-7*DAY),updatedAt:demoT(-5*DAY),lastInboundAt:demoT(-7*DAY+1*DAY),stageHistory:[{stage:'inquiry',at:demoT(-7*DAY)},{stage:'lead',at:demoT(-7*DAY+4*HOUR)},{stage:'assigned',at:demoT(-7*DAY+1*DAY)},{stage:'closed',at:demoT(-5*DAY)}],history:[{at:demoT(-7*DAY),actor:'Контакт-центр',text:'Обращение в Instagram Direct'},{at:demoT(-5*DAY),actor:'Хантер · Нұрлан Ахметов',text:'Заявка закрыта. Причина: ушёл к конкуренту'}]},
+    {id:'lead-013',fio:'Данияр Смағұлов',phone:'+77477778899',iin:null,address:null,snp:'Өтеген батыр',bs:'BS-045-OTB',channel:'website',source:'органика',utm:null,consentDate:'2026-08-15',consentMethod:'через форму',tariffBefore:null,tariff:null,equipmentModel:null,equipmentSerial:null,documentAttached:false,responsible:null,lastOperator:'Контакт-центр',stage:'lead',techCheck:null,refusalReason:null,refusalComment:null,visit:null,assignment:null,reactivationCount:1,createdAt:demoT(-20*DAY),updatedAt:demoT(-1*HOUR),lastInboundAt:demoT(-1*HOUR),stageHistory:[{stage:'inquiry',at:demoT(-20*DAY)},{stage:'lead',at:demoT(-20*DAY+3*HOUR)},{stage:'closed',at:demoT(-20*DAY+2*DAY)},{stage:'lead',at:demoT(-1*HOUR)}],history:[{at:demoT(-20*DAY),actor:'Контакт-центр',text:'Заявка с сайта'},{at:demoT(-20*DAY+2*DAY),actor:'Контакт-центр',text:'Заявка закрыта. Причина: передумал'},{at:demoT(-1*HOUR),actor:'Контакт-центр',text:'Реактивация. Новое обращение через «WhatsApp»: «снова интересует подключение, готов оплатить сейчас»'}]},
+    {id:'lead-014',fio:'Не указан',phone:'+77051114400',iin:null,address:null,snp:'Шамалған',bs:'BS-021-SHM',channel:'tiktok',source:'tiktok (ручной перенос оператором)',utm:null,consentDate:null,consentMethod:null,tariffBefore:null,tariff:null,equipmentModel:null,equipmentSerial:null,documentAttached:false,responsible:null,lastOperator:'Контакт-центр',stage:'inquiry',techCheck:null,refusalReason:null,refusalComment:null,visit:null,assignment:null,reactivationCount:0,createdAt:demoT(-40*MIN),updatedAt:demoT(-40*MIN),lastInboundAt:demoT(-40*MIN),stageHistory:[{stage:'inquiry',at:demoT(-40*MIN)}],history:[{at:demoT(-40*MIN),actor:'Контакт-центр',text:'Комментарий в TikTok перенесён вручную (DM API недоступен, см. п.3.2): интересует тариф'}]}
+  ];
+  return {hunters:hunters,region:region,adspend:adspend,leads:leads};
+})();
+
+/* ============================= STATE ============================= */
+var state={
+  role:'Руководитель',
+  hunterIdentity:null,
+  view:'inbox',
+  leads:[],
+  hunters:[],
+  regionRep:null,
+  adspend:{},
+  loading:true,
+  now:Date.now(),
+  searchQuery:'',
+  modal:null /* {type:'lead'|'newInquiry'|'refusal'|'visit'|'rolesInfo', ...} */
+};
+
+var db=null;
+var els={};
+
+/* ============================= UTIL ============================= */
+function esc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+function fmtPhone(p){
+  if(!p) return '—';
+  var d=String(p).replace(/[^\d]/g,'');
+  if(d.length===11 && d[0]==='7') return '+7 '+d.slice(1,4)+' '+d.slice(4,7)+' '+d.slice(7,9)+' '+d.slice(9,11);
+  return p;
+}
+function maskIin(iin,full){
+  if(!iin) return '—';
+  if(full) return iin;
+  if(iin.length<4) return '••••••••••••';
+  return iin.slice(0,2)+'••••••••'+iin.slice(-2);
+}
+function fmtDateTime(ts){
+  if(!ts) return '—';
+  var d=new Date(ts);
+  return d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+}
+function fmtDate(ts){
+  if(!ts) return '—';
+  return new Date(ts).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+function fmtDur(ms){
+  if(ms<0) ms=0;
+  var m=Math.floor(ms/MIN);
+  if(m<60) return m+' мин';
+  var h=Math.floor(m/60), rm=m%60;
+  if(h<24) return h+' ч '+rm+' мин';
+  var d=Math.floor(h/24), rh=h%24;
+  return d+' дн '+rh+' ч';
+}
+function fmtMoney(n){
+  if(n==null) return '—';
+  return Math.round(n).toLocaleString('ru-RU')+' ₸';
+}
+function toast(msg,isErr){
+  var t=document.createElement('div');
+  t.className='toast'+(isErr?' err':'');
+  t.textContent=msg;
+  els.toastRoot.appendChild(t);
+  setTimeout(function(){ t.remove(); },3600);
+}
+function activeIsTyping(){
+  var ae=document.activeElement;
+  return ae && ['INPUT','TEXTAREA','SELECT'].includes(ae.tagName) && els.viewContent.contains(ae);
+}
+function currentActorLabel(){
+  if(state.role==='Хантер') return 'Хантер · '+(state.hunterIdentity||'?');
+  if(state.role==='Регпредставитель') return 'Регпредставитель · '+(state.regionRep?state.regionRep.name:'?');
+  return state.role;
+}
+function currentHunterObj(){
+  return state.hunters.find(function(h){return h.name===state.hunterIdentity;})||null;
+}
+
+/* ============================= PERMISSIONS ============================= */
+function scopeSnps(){
+  if(state.role==='Хантер'){ var h=currentHunterObj(); return h?h.snps:[]; }
+  if(state.role==='Регпредставитель') return state.regionRep?state.regionRep.snps:[];
+  return null;
+}
+function getVisibleLeads(){
+  var snps=scopeSnps();
+  var list=state.leads;
+  if(snps) list=list.filter(function(l){ return snps.indexOf(l.snp)>-1; });
+  return list;
+}
+function canEditTariff(){ return state.role==='Хантер'||state.role==='Регпредставитель'||state.role==='Руководитель'; }
+function tariffNeedsApproval(){ return state.role==='Хантер'; }
+function canCloseDeal(){ return state.role==='Хантер'||state.role==='Регпредставитель'||state.role==='Руководитель'; }
+function canSeeFullIin(){ return state.role==='Контакт-центр'||state.role==='Регпредставитель'||state.role==='Руководитель'; }
+function analyticsAccess(){
+  if(state.role==='Руководитель') return 'full';
+  if(state.role==='Регпредставитель') return 'region';
+  return 'none';
+}
+
+/* ============================= DATA HELPERS ============================= */
+function findDuplicate(phone,iin){
+  var pn=(phone||'').replace(/[^\d]/g,'');
+  return state.leads.find(function(l){
+    var lp=(l.phone||'').replace(/[^\d]/g,'');
+    if(pn && lp===pn) return true;
+    if(iin && l.iin && l.iin===iin) return true;
+    return false;
+  })||null;
+}
+function slaInfo(lead){
+  if(lead.stage!=='inquiry') return null;
+  var target=SLA_TARGET_MIN[lead.channel]||20;
+  var deadline=(lead.lastInboundAt||lead.createdAt)+target*MIN;
+  var overdue=state.now>deadline;
+  return {target:target,deadline:deadline,overdue:overdue,remaining:deadline-state.now};
+}
+function queueInfo(lead){
+  if(lead.stage!=='assigned'||lead.assignment&&lead.assignment.hunter) return null;
+  if(!lead.assignment||!lead.assignment.queuedAt) return null;
+  var waited=state.now-lead.assignment.queuedAt;
+  return {waited:waited,escalated:waited>ESCALATION_MS};
+}
+function activeAssignedCount(hunterName){
+  return state.leads.filter(function(l){
+    return l.assignment && l.assignment.hunter===hunterName && (l.stage==='assigned'||l.stage==='install');
+  }).length;
+}
+function autoAssignHunter(snp){
+  var candidates=state.hunters.filter(function(h){ return h.snps.indexOf(snp)>-1; });
+  if(!candidates.length) return {hunter:null,queuedAt:Date.now(),escalated:false};
+  var withLoad=candidates.map(function(h){ return {h:h,load:activeAssignedCount(h.name)}; });
+  var free=withLoad.filter(function(x){ return x.load<HUNTER_CAPACITY; });
+  if(free.length){
+    free.sort(function(a,b){ return a.load-b.load; });
+    return {hunter:free[0].h.name,queuedAt:null,escalated:false};
+  }
+  return {hunter:null,queuedAt:Date.now(),escalated:false};
+}
+function leadTitle(l){ return l.fio&&l.fio!=='Не указан'?l.fio:fmtPhone(l.phone); }
+
+/* ============================= DB WRITE HELPERS ============================= */
+/* On GitHub Pages there is no live backend, so LOCAL_MODE persists to this
+   browser's localStorage only — nothing is sent anywhere, nothing is shared
+   between visitors. */
+var LOCAL_MODE=false;
+var LOCAL_KEY='auyltelecom_demo_v1';
+function localPersist(){
+  try{ localStorage.setItem(LOCAL_KEY,JSON.stringify({leads:state.leads,adspend:state.adspend})); }catch(e){}
+}
+function leadsCol(){ return db.collection('leads'); }
+function saveLead(id,updates,text){
+  var lead=state.leads.find(function(l){return l.id===id;});
+  if(!lead) return;
+  var hist=(lead.history||[]).slice();
+  hist.push({at:Date.now(),actor:currentActorLabel(),text:text});
+  if(hist.length>60) hist=hist.slice(hist.length-60);
+  var body=Object.assign({},updates,{history:hist,updatedAt:Date.now()});
+  if(LOCAL_MODE){
+    Object.assign(lead,body);
+    localPersist();
+    scheduleRender();
+    return;
+  }
+  if(!db){ toast('Хранилище недоступно',true); return; }
+  leadsCol().doc(id).update(body).catch(function(e){ toast('Ошибка сохранения: '+e.message,true); });
+}
+function createLead(data){
+  if(LOCAL_MODE){
+    var id='local-'+Date.now()+'-'+Math.round(Math.random()*9999);
+    state.leads=[Object.assign({id:id},data)].concat(state.leads);
+    localPersist();
+    scheduleRender();
+    return;
+  }
+  if(!db){ toast('Хранилище недоступно',true); return; }
+  leadsCol().add(data).catch(function(e){ toast('Ошибка создания: '+e.message,true); });
+}
+
+/* ============================= STAGE TRANSITIONS ============================= */
+function advanceStage(lead,dir){
+  var idx=MAIN_ORDER.indexOf(lead.stage);
+  if(idx===-1) return;
+  if(dir==='next'){
+    if(idx>=MAIN_ORDER.length-1) return;
+    var next=MAIN_ORDER[idx+1];
+    var updates={stage:next};
+    var stageHist=(lead.stageHistory||[]).slice();
+    if(lead.stage==='lead'&&next==='assigned'){
+      if(lead.techCheck==='none'){ toast('Нет техвозможности — закройте сделку с причиной отказа',true); return; }
+      if(!lead.techCheck){ toast('Укажите результат проверки техвозможности перед назначением',true); return; }
+      var res=autoAssignHunter(lead.snp);
+      updates.assignment=res;
+      updates.responsible=res.hunter||lead.responsible||null;
+    }
+    if(lead.stage==='assigned'&&next==='install'){
+      if(lead.assignment&&!lead.assignment.hunter){ toast('Заявка ещё в очереди на хантера — назначьте исполнителя',true); return; }
+      updates.visit={status:'planned',plannedAt:null,postponeReason:null,executor:(lead.assignment&&lead.assignment.hunter)||null,result:null,resultComment:null};
+    }
+    if(lead.stage==='install'&&next==='connected'){
+      if(!lead.visit||lead.visit.result!=='success'){ toast('Укажите результат выезда «Успешно подключено» перед закрытием',true); return; }
+    }
+    stageHist.push({stage:next,at:Date.now()});
+    updates.stageHistory=stageHist;
+    saveLead(lead.id,updates,'Этап изменён: '+STAGE_LABEL[lead.stage]+' → '+STAGE_LABEL[next]);
+  } else {
+    if(idx<=0) return;
+    var prev=MAIN_ORDER[idx-1];
+    var stageHist2=(lead.stageHistory||[]).slice();
+    stageHist2.push({stage:prev,at:Date.now()});
+    saveLead(lead.id,{stage:prev,stageHistory:stageHist2},'Этап возвращён: '+STAGE_LABEL[lead.stage]+' → '+STAGE_LABEL[prev]);
+  }
+}
+function closeDeal(lead,reason,comment){
+  var stageHist=(lead.stageHistory||[]).slice();
+  stageHist.push({stage:'closed',at:Date.now()});
+  saveLead(lead.id,{stage:'closed',refusalReason:reason,refusalComment:comment||null,stageHistory:stageHist},'Заявка закрыта. Причина: '+reason+(comment?' ('+comment+')':''));
+}
+function reassignHunter(lead){
+  var res=autoAssignHunter(lead.snp);
+  if(!res.hunter){ toast('Свободных хантеров по СНП «'+lead.snp+'» пока нет',true); return; }
+  saveLead(lead.id,{assignment:res,responsible:res.hunter},'Назначен хантер: '+res.hunter);
+}
+
+/* ============================= NEW INQUIRY / DEDUP ============================= */
+function submitNewInquiry(data){
+  var dup=findDuplicate(data.phone,data.iin);
+  if(dup){
+    var wasClosed=dup.stage==='closed';
+    var updates={lastInboundAt:Date.now()};
+    var text=(wasClosed?'Реактивация. ':'')+'Новое обращение через «'+CHANNEL_MAP[data.channel].label+'»'+(data.message?': «'+data.message+'»':'');
+    if(wasClosed){
+      updates.stage='lead';
+      updates.reactivationCount=(dup.reactivationCount||0)+1;
+      var sh=(dup.stageHistory||[]).slice(); sh.push({stage:'lead',at:Date.now()}); updates.stageHistory=sh;
+    }
+    saveLead(dup.id,updates,text);
+    toast((wasClosed?'Реактивация — ':'Объединено с существующим лидом — ')+leadTitle(dup));
+    closeModal();
+    return;
+  }
+  var now=Date.now();
+  createLead({
+    fio:data.fio||'Не указан', phone:data.phone, iin:data.iin||null,
+    address:null, snp:data.snp, bs:data.bs||null,
+    channel:data.channel, source:data.source||'органика', utm:data.utm||null,
+    consentDate:null, consentMethod:null,
+    tariffBefore:null, tariff:null, equipmentModel:null, equipmentSerial:null, documentAttached:false,
+    responsible:null, lastOperator:currentActorLabel(),
+    stage:'inquiry', techCheck:null, refusalReason:null, refusalComment:null,
+    visit:null, assignment:null, reactivationCount:0,
+    createdAt:now, updatedAt:now, lastInboundAt:now,
+    stageHistory:[{stage:'inquiry',at:now}],
+    history:[{at:now,actor:currentActorLabel(),text:'Новое обращение через «'+CHANNEL_MAP[data.channel].label+'»'+(data.message?': «'+data.message+'»':'')}]
+  });
+  toast('Обращение создано');
+  closeModal();
+}
+
+/* ============================= RENDER: SHELL ============================= */
+function iconSvg(name){
+  var m={
+    inbox:'<path d="M3 12l2-7h14l2 7M3 12v6a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-6M3 12h5a1 1 0 0 1 1 1 2 2 0 0 0 4 0 1 1 0 0 1 1-1h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
+    kanban:'<rect x="3.5" y="4" width="5" height="16" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="9.8" y="4" width="5" height="10" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="16.1" y="4" width="5" height="13" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.6"/>',
+    clients:'<circle cx="9" cy="8" r="3.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3.5 20c0-3.6 2.5-6 5.5-6s5.5 2.4 5.5 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M15 6.2c1.5.4 2.6 1.7 2.6 3.2 0 1.4-.9 2.6-2.2 3.1M17 14.4c2.2.5 3.7 2.4 3.7 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+    chart:'<path d="M4 20V10M11 20V4M18 20v-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+    log:'<path d="M6 3.5h9l4 4V20a.6.6 0 0 1-.6.6H6a.6.6 0 0 1-.6-.6V4.1a.6.6 0 0 1 .6-.6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.5 11h7M8.5 14.3h7M8.5 17.6h4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>',
+    lock:'<rect x="5" y="10.5" width="14" height="9.5" rx="1.8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7" fill="none" stroke="currentColor" stroke-width="1.6"/>',
+    shield:'<path d="M12 3l7 3v5.2c0 4.6-3 8.2-7 9.8-4-1.6-7-5.2-7-9.8V6l7-3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 12.2l2 2 4-4.3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+    search:'<circle cx="10.5" cy="10.5" r="6.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M19 19l-4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>',
+    plus:'<path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+    x:'<path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+    signal:'<path d="M5 19V13M11 19V9M17 19V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+  };
+  return m[name]||'';
+}
+function counts(){
+  var vis=getVisibleLeads();
+  var slaOver=vis.filter(function(l){ var s=slaInfo(l); return s&&s.overdue; }).length;
+  var active=vis.filter(function(l){ return l.stage!=='connected'&&l.stage!=='closed'; }).length;
+  return {slaOver:slaOver,active:active};
+}
+function buildShell(){
+  els.sidebar=document.getElementById('sidebar');
+  els.topbar=document.getElementById('topbar');
+  els.viewContent=document.getElementById('view-content');
+  els.modalRoot=document.getElementById('modal-root');
+  els.toastRoot=document.getElementById('toast-root');
+
+  els.sidebar.innerHTML=''+
+    '<div class="brand"><div class="brand-mark"><svg viewBox="0 0 24 24">'+iconSvg('signal')+'</svg></div>'+
+      '<div class="brand-text"><b>AuylTelecom</b><span>Единое окно CRM</span></div></div>'+
+    '<div class="role-box">'+
+      '<label>Режим просмотра</label>'+
+      '<select class="role-select" id="role-select">'+ROLES.map(function(r){return '<option value="'+r+'"'+(r===state.role?' selected':'')+'>'+r+'</option>';}).join('')+'</select>'+
+      '<div id="identity-slot"></div>'+
+    '</div>'+
+    '<nav class="nav" id="nav"></nav>'+
+    '<div class="side-foot">'+
+      '<button class="link-btn" data-act="rolesInfo">Матрица прав и роли</button>'+
+      (LOCAL_MODE?'<button class="link-btn" data-act="resetDemo">Сбросить демо-данные</button>':'')+
+      '<div class="compliance-card">'+
+        '<div class="row"><svg viewBox="0 0 24 24">'+iconSvg('shield')+'</svg><span>Сервер БД — территория РК (закон «О персональных данных»)</span></div>'+
+        '<div class="row"><svg viewBox="0 0 24 24">'+iconSvg('shield')+'</svg><span>Согласие на обработку ПДн фиксируется в карточке клиента</span></div>'+
+      '</div>'+
+    '</div>';
+
+  document.getElementById('role-select').addEventListener('change',function(e){
+    state.role=e.target.value;
+    if(state.role==='Хантер'&&!state.hunterIdentity&&state.hunters.length) state.hunterIdentity=state.hunters[0].name;
+    if(state.role==='Хантер'||state.role==='Регпредставитель') updateIdentitySlot();
+    else document.getElementById('identity-slot').innerHTML='';
+    if(state.view==='analytics'&&analyticsAccess()==='none') state.view='inbox';
+    renderAll();
+  });
+
+  els.topbar.innerHTML=''+
+    '<button class="btn btn-ghost menu-btn" id="menu-btn" aria-label="Меню"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>'+
+    '<div class="topbar-title-wrap"><h1 id="view-title"></h1><div id="view-sub"></div></div>'+
+    '<div class="search-wrap"><svg viewBox="0 0 24 24">'+iconSvg('search')+'</svg><input id="search-input" placeholder="Поиск: ФИО, телефон, СНП…" value="'+esc(state.searchQuery)+'"/></div>'+
+    '<button class="btn btn-primary" id="new-inquiry-btn"><svg width="14" height="14" viewBox="0 0 24 24">'+iconSvg('plus')+'</svg>Новое обращение</button>';
+
+  document.getElementById('new-inquiry-btn').addEventListener('click',openNewInquiryModal);
+  document.getElementById('menu-btn').addEventListener('click',function(){
+    els.sidebar.classList.add('open');
+    document.getElementById('sidebar-backdrop').classList.add('open');
+  });
+  document.getElementById('sidebar-backdrop').addEventListener('click',function(){
+    els.sidebar.classList.remove('open');
+    this.classList.remove('open');
+  });
+  var searchTimer=null;
+  document.getElementById('search-input').addEventListener('input',function(e){
+    var v=e.target.value;
+    clearTimeout(searchTimer);
+    searchTimer=setTimeout(function(){ state.searchQuery=v; renderView(); },120);
+  });
+
+  updateIdentitySlot();
+  document.body.addEventListener('click',handleDelegatedClick);
+}
+function updateIdentitySlot(){
+  var slot=document.getElementById('identity-slot');
+  if(!slot) return;
+  if(state.role==='Хантер'){
+    slot.innerHTML='<select class="identity-select" id="identity-select">'+state.hunters.map(function(h){return '<option value="'+esc(h.name)+'"'+(h.name===state.hunterIdentity?' selected':'')+'>'+esc(h.name)+'</option>';}).join('')+'</select>';
+    var sel=document.getElementById('identity-select');
+    if(sel) sel.addEventListener('change',function(e){ state.hunterIdentity=e.target.value; renderAll(); });
+  } else if(state.role==='Регпредставитель'&&state.regionRep){
+    slot.innerHTML='<div class="field-note" style="font-size:11px;color:var(--text-muted);padding:2px 2px 0;">'+esc(state.regionRep.name)+'</div>';
+  } else {
+    slot.innerHTML='';
+  }
+}
+function renderNav(){
+  var vis=getVisibleLeads();
+  var c=counts();
+  var items=[
+    {key:'inbox',label:'Единое окно',icon:'inbox',count:c.active,hot:c.slaOver>0},
+    {key:'kanban',label:'Воронка',icon:'kanban',count:vis.length},
+    {key:'clients',label:'Клиенты',icon:'clients',count:vis.filter(function(l){return l.stage==='connected';}).length},
+    {key:'analytics',label:'Аналитика',icon:'chart',locked:analyticsAccess()==='none'},
+    {key:'audit',label:'Журнал аудита',icon:'log'}
+  ];
+  document.getElementById('nav').innerHTML=items.map(function(it){
+    var locked=it.locked;
+    return '<button class="nav-item'+(state.view===it.key?' active':'')+(locked?' locked':'')+'" data-act="nav" data-view="'+it.key+'">'+
+      '<svg width="15" height="15" viewBox="0 0 24 24">'+iconSvg(locked?'lock':it.icon)+'</svg>'+
+      '<span>'+it.label+'</span>'+
+      (it.count!=null&&!locked?'<span class="count'+(it.hot?' hot':'')+'">'+it.count+'</span>':'')+
+      '</button>';
+  }).join('');
+}
+
+/* ============================= DELEGATED CLICK HANDLER ============================= */
+function handleDelegatedClick(e){
+  var t=e.target.closest('[data-act]');
+  if(!t) return;
+  var act=t.getAttribute('data-act');
+  if(act==='nav'){
+    var v=t.getAttribute('data-view');
+    els.sidebar.classList.remove('open');
+    var bd=document.getElementById('sidebar-backdrop'); if(bd) bd.classList.remove('open');
+    if(v==='analytics'&&analyticsAccess()==='none'){ state.view='analytics'; renderAll(); return; }
+    state.view=v; renderAll(); return;
+  }
+  if(act==='open-lead'){ openLeadModal(t.getAttribute('data-id')); return; }
+  if(act==='close-modal'){ closeModal(); return; }
+  if(act==='rolesInfo'){ openRolesInfoModal(); return; }
+  if(act==='resetDemo'){
+    try{ localStorage.removeItem(LOCAL_KEY); }catch(e){}
+    bootLocalDemo();
+    toast('Демо-данные сброшены к исходным');
+    return;
+  }
+  if(act==='advance'){
+    var lead=state.leads.find(function(l){return l.id===t.getAttribute('data-id');});
+    if(lead) advanceStage(lead,t.getAttribute('data-dir'));
+    return;
+  }
+  if(act==='open-refusal'){ openRefusalModal(t.getAttribute('data-id')); return; }
+  if(act==='reassign'){
+    var lead2=state.leads.find(function(l){return l.id===t.getAttribute('data-id');});
+    if(lead2) reassignHunter(lead2);
+    return;
+  }
+  if(act==='open-visit'){ openVisitModal(t.getAttribute('data-id')); return; }
+  if(act==='tab'){
+    var group=t.closest('[data-tabgroup]').getAttribute('data-tabgroup');
+    document.querySelectorAll('[data-tabgroup="'+group+'"] .tab').forEach(function(el){el.classList.remove('active');});
+    t.classList.add('active');
+    document.querySelectorAll('[data-tabpanel-group="'+group+'"] [data-tabpanel]').forEach(function(el){
+      el.style.display=el.getAttribute('data-tabpanel')===t.getAttribute('data-tab')?'':'none';
+    });
+    return;
+  }
+}
+
+/* ============================= RENDER ROOT ============================= */
+function renderAll(){ renderNav(); renderTopbarTitle(); renderView(); updateIdentitySlotSafe(); }
+function updateIdentitySlotSafe(){ /* identity slot updated on role change only */ }
+function scheduleRender(){ if(activeIsTyping()) return; renderAll(); }
+
+var VIEW_META={
+  inbox:{title:'Единое окно оператора',sub:'Все каналы в одном списке — сайт, звонки, WhatsApp, Instagram, TikTok'},
+  kanban:{title:'Воронка',sub:'Обращение → Лид → Назначено → Выезд/монтаж → Подключён → Закрыт/Отказ'},
+  clients:{title:'Клиенты и заявки',sub:'Карточки с идентификацией, тарифом, оборудованием и историей'},
+  analytics:{title:'Аналитика',sub:'Воронка, конверсия по каналам и СНП, причины отказа, CPL'},
+  audit:{title:'Журнал аудита',sub:'Кто и когда менял статус заявки или поля карточки'}
+};
+function renderTopbarTitle(){
+  var meta=VIEW_META[state.view];
+  document.getElementById('view-title').textContent=meta.title;
+  document.getElementById('view-sub').textContent=meta.sub;
+}
+function renderView(){
+  if(state.loading){ els.viewContent.innerHTML=skeletonHtml(); return; }
+  if(state.view==='inbox') return renderInbox();
+  if(state.view==='kanban') return renderKanban();
+  if(state.view==='clients') return renderClients();
+  if(state.view==='analytics') return renderAnalytics();
+  if(state.view==='audit') return renderAudit();
+}
+function skeletonHtml(){
+  var s='';
+  for(var i=0;i<5;i++) s+='<div class="skeleton"></div>';
+  return s;
+}
+function searchFilter(list){
+  var q=state.searchQuery.trim().toLowerCase();
+  if(!q) return list;
+  return list.filter(function(l){
+    return (l.fio||'').toLowerCase().indexOf(q)>-1 ||
+      (l.phone||'').indexOf(q)>-1 ||
+      (l.snp||'').toLowerCase().indexOf(q)>-1 ||
+      (canSeeFullIin()&&l.iin&&l.iin.indexOf(q)>-1);
+  });
+}
+var CHANNEL_CSS_VAR={website:'--ch-website',call_missed:'--ch-call',whatsapp:'--ch-whatsapp',instagram:'--ch-instagram',tiktok:'--ch-tiktok'};
+function chChip(key){
+  var c=CHANNEL_MAP[key]; if(!c) return '';
+  return '<span class="chip chip-ch" style="background:var('+CHANNEL_CSS_VAR[key]+')">'+c.short+'</span>';
+}
+function stageChip(stage){
+  return '<span class="chip chip-stage"><span class="pip"></span>'+STAGE_LABEL[stage]+'</span>';
+}
+
+/* ---------------- Inbox ---------------- */
+function renderInbox(){
+  var vis=searchFilter(getVisibleLeads());
+  var active=vis.filter(function(l){return l.stage!=='connected'&&l.stage!=='closed';});
+  active.sort(function(a,b){
+    var sa=slaInfo(a),sb=slaInfo(b);
+    var oa=sa&&sa.overdue?0:1, ob=sb&&sb.overdue?0:1;
+    if(oa!==ob) return oa-ob;
+    return (b.lastInboundAt||b.createdAt)-(a.lastInboundAt||a.createdAt);
+  });
+  var c=counts();
+  var html='<div class="stat-row">'+
+    statTile('Просрочено по SLA',c.slaOver,c.slaOver>0?'critical':'good',c.slaOver>0?'Требуют немедленной реакции':'Все в норме')+
+    statTile('Активных в работе',c.active,'','Обращение → Выезд/монтаж')+
+    statTile('Новых сегодня',vis.filter(function(l){return l.createdAt>Date.now()-DAY;}).length,'','За последние 24 часа')+
+    statTile('В очереди на хантера',vis.filter(function(l){return queueInfo(l);}).length,'warn','Ожидают свободного исполнителя')+
+    '</div>';
+  html+='<div class="panel"><div class="panel-head"><h3>Обращения в работе</h3><span class="hint">'+active.length+' записей</span></div><div class="panel-body">';
+  if(!active.length){ html+=emptyState('Нет активных обращений — все заявки обработаны или ждите новых'); }
+  else { html+=active.map(inboxRow).join(''); }
+  html+='</div></div>';
+  els.viewContent.innerHTML=html;
+}
+function statTile(label,value,tone,sub){
+  return '<div class="stat-tile"><div class="label">'+label+'</div><div class="value'+(tone?' '+tone:'')+'">'+value+'</div><div class="sub">'+sub+'</div></div>';
+}
+function emptyState(text){ return '<div class="empty-state">'+text+'</div>'; }
+function inboxRow(l){
+  var sla=slaInfo(l);
+  var q=queueInfo(l);
+  var last=(l.history&&l.history.length)?l.history[l.history.length-1].text:'';
+  var badges='';
+  if(sla) badges+=sla.overdue?'<span class="chip chip-critical">Просрочено '+fmtDur(-sla.remaining)+'</span>':'<span class="chip chip-info">SLA '+fmtDur(sla.remaining)+'</span>';
+  if(q) badges+= q.escalated?'<span class="chip chip-critical">Эскалировано регпредставителю</span>':'<span class="chip chip-warn">В очереди '+fmtDur(q.waited)+'</span>';
+  return '<div class="lead-row" data-act="open-lead" data-id="'+l.id+'">'+
+    chChip(l.channel)+
+    '<div class="who"><b>'+esc(leadTitle(l))+'</b><span>'+fmtPhone(l.phone)+'</span></div>'+
+    '<div class="msg">'+esc(last)+'</div>'+
+    '<div class="meta">'+stageChip(l.stage)+'<span class="chip chip-stage">'+esc(l.snp)+'</span>'+badges+'</div>'+
+  '</div>';
+}
+
+/* ---------------- Kanban ---------------- */
+function renderKanban(){
+  var vis=searchFilter(getVisibleLeads());
+  var cols=STAGES.map(function(st){
+    var items=vis.filter(function(l){return l.stage===st.key;});
+    return '<div class="kcol" data-stage="'+st.key+'" ondragover="event.preventDefault();this.classList.add(\'dragover\')" ondragleave="this.classList.remove(\'dragover\')" ondrop="window.__kanbanDrop(event,\''+st.key+'\')">'+
+      '<div class="kcol-head"><b>'+st.label+'</b><span class="n">'+items.length+'</span></div>'+
+      items.map(kanbanCard).join('')+
+    '</div>';
+  }).join('');
+  els.viewContent.innerHTML='<div class="kanban scrollx">'+cols+'</div>';
+}
+function kanbanCard(l){
+  var sla=slaInfo(l), q=queueInfo(l);
+  var badges='';
+  if(sla&&sla.overdue) badges+='<span class="chip chip-critical">SLA</span>';
+  if(q) badges+= q.escalated?'<span class="chip chip-critical">Эскалация</span>':'<span class="chip chip-warn">Очередь</span>';
+  if(l.stage==='closed'&&l.refusalReason) badges+='<span class="chip chip-stage">'+esc(l.refusalReason)+'</span>';
+  if(l.reactivationCount) badges+='<span class="chip chip-info">Реактивация</span>';
+  var draggable=l.stage!=='closed';
+  return '<div class="kcard" draggable="'+draggable+'" ondragstart="window.__kanbanDrag(event,\''+l.id+'\')" data-act="open-lead" data-id="'+l.id+'">'+
+    '<b>'+esc(leadTitle(l))+'</b><span class="phone">'+fmtPhone(l.phone)+'</span>'+
+    '<div class="krow">'+chChip(l.channel)+'<span class="chip chip-stage">'+esc(l.snp)+'</span>'+badges+'</div>'+
+    '<div class="kfoot"><span class="resp">'+(l.responsible?esc(l.responsible):'не назначен')+'</span></div>'+
+  '</div>';
+}
+window.__kanbanDrag=function(ev,id){ ev.dataTransfer.setData('text/plain',id); };
+window.__kanbanDrop=function(ev,targetStage){
+  ev.preventDefault();
+  ev.currentTarget.classList.remove('dragover');
+  var id=ev.dataTransfer.getData('text/plain');
+  var lead=state.leads.find(function(l){return l.id===id;});
+  if(!lead) return;
+  if(lead.stage===targetStage) return;
+  if(targetStage==='closed'){ openRefusalModal(id); return; }
+  if(lead.stage==='closed'){ toast('Заявка закрыта — используйте новое обращение для реактивации',true); return; }
+  var curIdx=MAIN_ORDER.indexOf(lead.stage), tgtIdx=MAIN_ORDER.indexOf(targetStage);
+  if(tgtIdx-curIdx===1) advanceStage(lead,'next');
+  else if(tgtIdx-curIdx===-1) advanceStage(lead,'prev');
+  else toast('Перемещайте заявку по одному этапу за раз',true);
+};
+
+/* ---------------- Clients (table) ---------------- */
+function renderClients(){
+  var vis=searchFilter(getVisibleLeads());
+  vis=vis.slice().sort(function(a,b){return (b.updatedAt||0)-(a.updatedAt||0);});
+  var rows=vis.map(function(l){
+    return '<tr data-act="open-lead" data-id="'+l.id+'">'+
+      '<td><b>'+esc(leadTitle(l))+'</b></td>'+
+      '<td class="num">'+fmtPhone(l.phone)+'</td>'+
+      '<td class="num">'+maskIin(l.iin,canSeeFullIin())+'</td>'+
+      '<td>'+esc(l.snp)+'</td>'+
+      '<td>'+chChip(l.channel)+'</td>'+
+      '<td>'+stageChip(l.stage)+'</td>'+
+      '<td>'+(l.responsible?esc(l.responsible):'<span style="color:var(--text-faint)">—</span>')+'</td>'+
+      '<td class="num">'+fmtDateTime(l.updatedAt)+'</td>'+
+    '</tr>';
+  }).join('');
+  var html='<div class="panel"><div class="panel-body scrollx">'+
+    '<table class="data"><thead><tr><th>ФИО</th><th>Телефон</th><th>ИИН</th><th>СНП</th><th>Канал</th><th>Этап</th><th>Ответственный</th><th>Обновлено</th></tr></thead>'+
+    '<tbody>'+(rows||'<tr><td colspan="8">'+emptyState('Ничего не найдено')+'</td></tr>')+'</tbody></table>'+
+  '</div></div>';
+  els.viewContent.innerHTML=html;
+}
+
+/* ---------------- Analytics ---------------- */
+function analyticsScopeLeads(){
+  var access=analyticsAccess();
+  if(access==='full') return state.leads;
+  if(access==='region') return state.leads.filter(function(l){ return state.regionRep&&state.regionRep.snps.indexOf(l.snp)>-1; });
+  return [];
+}
+function renderAnalytics(){
+  var access=analyticsAccess();
+  if(access==='none'){
+    els.viewContent.innerHTML='<div class="panel locked-panel"><svg viewBox="0 0 24 24">'+iconSvg('lock')+'</svg>'+
+      '<h3>Доступ ограничен по роли</h3><p>Дашборд руководителя открыт ролям «Регпредставитель» (региональный срез) и «Руководитель» (полный доступ). Переключите режим просмотра слева.</p></div>';
+    return;
+  }
+  var leads=analyticsScopeLeads();
+  var closed=leads.filter(function(l){return l.stage==='closed';});
+  var connected=leads.filter(function(l){return l.stage==='connected';});
+  var noTech=closed.filter(function(l){return l.refusalReason==='нет техвозможности';});
+
+  var html='<div class="stat-row">'+
+    statTile('Всего лидов'+(access==='region'?' (регион)':''),leads.length,'','Уникальных обращений, без реактиваций')+
+    statTile('Конверсия в подключение',leads.length?Math.round(connected.length/leads.length*100)+'%':'—','good',connected.length+' из '+leads.length)+
+    statTile('Нет техвозможности',closed.length?Math.round(noTech.length/closed.length*100)+'%':'—','',noTech.length+' из '+closed.length+' отказов')+
+    statTile('Реактиваций',leads.reduce(function(s,l){return s+(l.reactivationCount||0);},0),'','Повторные обращения, отдельный срез')+
+  '</div>';
+
+  html+='<div class="grid2">';
+  html+='<div class="panel"><div class="panel-head"><h3>Цикл сделки по этапам</h3><span class="hint">среднее время в этапе</span></div><div class="panel-body">'+funnelHtml(leads)+'</div></div>';
+  html+='<div class="panel"><div class="panel-head"><h3>Конверсия: канал × СНП</h3><span class="hint">доля «Подключён» от всех обращений</span></div><div class="panel-body scrollx">'+matrixHtml(leads)+'</div></div>';
+  html+='</div>';
+
+  html+='<div class="grid2" style="margin-top:14px;">';
+  html+='<div class="panel"><div class="panel-head"><h3>Причины отказа по каналам</h3><span class="hint">'+closed.length+' закрытых с отказом</span></div><div class="panel-body">'+refusalHtml(closed)+'</div></div>';
+  html+='<div class="panel"><div class="panel-head"><h3>CPL по каналам</h3><span class="hint">бюджет / первичные лиды'+(access==='full'?', редактируется':'')+'</span></div><div class="panel-body">'+cplHtml(leads)+'</div></div>';
+  html+='</div>';
+
+  els.viewContent.innerHTML=html;
+}
+function funnelHtml(leads){
+  var durations={};
+  MAIN_ORDER.forEach(function(k){durations[k]=[];});
+  state.leads.forEach(function(l){
+    var sh=l.stageHistory||[];
+    for(var i=0;i<sh.length-1;i++){
+      var from=sh[i].stage;
+      if(durations[from]!=null) durations[from].push(sh[i+1].at-sh[i].at);
+    }
+  });
+  var max=0;
+  var avg={};
+  MAIN_ORDER.forEach(function(k){
+    var arr=durations[k];
+    avg[k]=arr.length?arr.reduce(function(a,b){return a+b;},0)/arr.length:null;
+    if(avg[k]>max) max=avg[k];
+  });
+  var countByStage={};
+  STAGES.forEach(function(s){countByStage[s.key]=leads.filter(function(l){return l.stage===s.key;}).length;});
+  return STAGES.map(function(s){
+    var n=countByStage[s.key];
+    var pct=leads.length?Math.round(n/leads.length*100):0;
+    var durLabel = (s.key!=='closed'&&avg[s.key]!=null) ? '· в среднем '+fmtDur(avg[s.key]) : '';
+    return '<div class="funnel-bar"><div class="lbl">'+s.label+'</div><div class="track"><div class="fill" style="width:'+pct+'%"></div></div><div class="n">'+n+' '+durLabel+'</div></div>';
+  }).join('');
+}
+function matrixHtml(leads){
+  var snps=uniq(leads.map(function(l){return l.snp;}));
+  if(!snps.length) return emptyState('Недостаточно данных');
+  var html='<table class="matrix"><thead><tr><th></th>'+CHANNELS.map(function(c){return '<th>'+c.short+'</th>';}).join('')+'</tr></thead><tbody>';
+  snps.forEach(function(snp){
+    html+='<tr><th class="rowh">'+esc(snp)+'</th>';
+    CHANNELS.forEach(function(c){
+      var subset=leads.filter(function(l){return l.snp===snp&&l.channel===c.key;});
+      if(!subset.length){ html+='<td style="color:var(--text-faint)">—</td>'; return; }
+      var conv=subset.filter(function(l){return l.stage==='connected';}).length;
+      var pct=Math.round(conv/subset.length*100);
+      var bg=cellShade(pct);
+      html+='<td style="background:'+bg+'" title="'+conv+'/'+subset.length+'">'+pct+'%</td>';
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  return html;
+}
+function cellShade(pct){
+  if(pct===0) return 'var(--surface-alt)';
+  var alpha=(0.12+pct/100*0.55).toFixed(2);
+  return 'color-mix(in srgb, var(--accent) '+Math.round(alpha*100)+'%, var(--surface))';
+}
+function uniq(arr){ return arr.filter(function(v,i){return arr.indexOf(v)===i;}); }
+var REFUSAL_COLORS=['#c13b2e','#a8690a','#3661a3','#0f6e63','#a6416b','#494956','#6b7f8c'];
+function refusalHtml(closed){
+  if(!closed.length) return emptyState('Нет закрытых заявок');
+  var byChannel={};
+  CHANNELS.forEach(function(c){byChannel[c.key]=[];});
+  closed.forEach(function(l){ if(byChannel[l.channel]) byChannel[l.channel].push(l.refusalReason||'другое'); });
+  var html='<div class="hbar-group">';
+  CHANNELS.forEach(function(c){
+    var arr=byChannel[c.key];
+    if(!arr.length) return;
+    var counts={};
+    arr.forEach(function(r){counts[r]=(counts[r]||0)+1;});
+    var total=arr.length;
+    html+='<div class="hbar-row"><div class="hlbl"><span>'+c.label+'</span><span class="mono" style="color:var(--text-faint)">'+total+'</span></div><div class="stack">';
+    REFUSAL_REASONS.forEach(function(r,i){
+      if(!counts[r]) return;
+      var w=counts[r]/total*100;
+      html+='<div class="seg" style="width:'+w+'%;background:'+REFUSAL_COLORS[i%REFUSAL_COLORS.length]+'" title="'+r+': '+counts[r]+'"></div>';
+    });
+    html+='</div></div>';
+  });
+  html+='</div><div class="legend">'+REFUSAL_REASONS.map(function(r,i){
+    return '<span class="item"><span class="sw" style="background:'+REFUSAL_COLORS[i%REFUSAL_COLORS.length]+'"></span>'+r+'</span>';
+  }).join('')+'</div>';
+  return html;
+}
+function cplHtml(leads){
+  var max=0; var vals={};
+  CHANNELS.forEach(function(c){
+    var n=leads.filter(function(l){return l.channel===c.key;}).length;
+    var spend=state.adspend[c.key]||0;
+    var cpl=n>0?spend/n:null;
+    vals[c.key]={n:n,spend:spend,cpl:cpl};
+    if(cpl&&cpl>max) max=cpl;
+  });
+  var editable=state.role==='Руководитель';
+  var html='';
+  CHANNELS.forEach(function(c){
+    var v=vals[c.key];
+    var pct=max?Math.round((v.cpl||0)/max*100):0;
+    html+='<div class="cpl-row"><div class="name">'+c.label+'</div><div class="track"><div class="fill" style="width:'+pct+'%;background:var(--ch-'+c.key+')"></div></div>'+
+      '<div class="val">'+(v.cpl?fmtMoney(v.cpl):'—')+'</div>'+
+      (editable?'<input class="mono" type="number" min="0" step="1000" value="'+(state.adspend[c.key]||0)+'" data-adspend="'+c.key+'"/>':'<div class="val" style="color:var(--text-faint)">'+v.n+' лидов</div>')+
+    '</div>';
+  });
+  var out='<div>'+html+'</div>';
+  setTimeout(function(){
+    document.querySelectorAll('[data-adspend]').forEach(function(inp){
+      inp.addEventListener('change',function(e){
+        var ch=e.target.getAttribute('data-adspend');
+        var val=Number(e.target.value)||0;
+        state.adspend[ch]=val;
+        if(LOCAL_MODE) localPersist();
+        else if(db){ var body={}; body[ch]=val; db.doc('config/adspend').update(body).catch(function(){}); }
+        renderView();
+      });
+    });
+  },0);
+  return out;
+}
+
+/* ---------------- Audit ---------------- */
+function renderAudit(){
+  var vis=getVisibleLeads();
+  var entries=[];
+  vis.forEach(function(l){
+    (l.history||[]).forEach(function(h){ entries.push({at:h.at,actor:h.actor,text:h.text,lead:l}); });
+  });
+  entries.sort(function(a,b){return b.at-a.at;});
+  var q=state.searchQuery.trim().toLowerCase();
+  if(q) entries=entries.filter(function(e){ return (e.lead.fio||'').toLowerCase().indexOf(q)>-1||(e.lead.phone||'').indexOf(q)>-1; });
+  var html='<div class="panel"><div class="panel-head"><h3>Все изменения</h3><span class="hint">'+entries.length+' событий</span></div><div class="panel-body">';
+  if(!entries.length) html+=emptyState('Событий не найдено');
+  else{
+    html+='<div class="timeline">'+entries.slice(0,200).map(function(e){
+      return '<div class="tl-item" data-act="open-lead" data-id="'+e.lead.id+'" style="cursor:pointer"><div class="t">'+fmtDateTime(e.at)+'</div><div class="c"><span class="actor">'+esc(e.actor)+'</span> · '+esc(leadTitle(e.lead))+'<br>'+esc(e.text)+'</div></div>';
+    }).join('')+'</div>';
+  }
+  html+='</div></div>';
+  els.viewContent.innerHTML=html;
+}
+
+/* ============================= MODALS ============================= */
+function closeModal(){ state.modal=null; els.modalRoot.innerHTML=''; }
+function modalShell(inner,wide){
+  return '<div class="overlay" data-act="close-modal-bg"><div class="modal'+(wide?' wide':'')+'" id="modal-box">'+inner+'</div></div>';
+}
+function mountModal(html){
+  els.modalRoot.innerHTML=html;
+  var overlay=els.modalRoot.querySelector('.overlay');
+  overlay.addEventListener('mousedown',function(e){ if(e.target===overlay) closeModal(); });
+  els.modalRoot.querySelector('.x').addEventListener('click',closeModal);
+}
+
+function openNewInquiryModal(){
+  var html=modalShell(
+    '<div class="modal-head"><h3>Новое обращение</h3><button class="x" data-act="close-modal">'+iconWrap('x')+'</button></div>'+
+    '<div class="modal-body">'+
+      '<div class="field"><label>Канал</label><select id="ni-channel">'+CHANNELS.map(function(c){return '<option value="'+c.key+'">'+c.label+'</option>';}).join('')+'</select></div>'+
+      '<div class="field-row">'+
+        '<div class="field"><label>Телефон</label><input id="ni-phone" placeholder="+7 707 000 00 00"/></div>'+
+        '<div class="field"><label>ИИН (если известен)</label><input id="ni-iin" maxlength="12" placeholder="12 цифр"/></div>'+
+      '</div>'+
+      '<div class="field"><label>ФИО (если известно)</label><input id="ni-fio" placeholder="Иванов Иван Иванович"/></div>'+
+      '<div class="field"><label>СНП</label><select id="ni-snp">'+allSnps().map(function(s){return '<option value="'+esc(s)+'">'+esc(s)+'</option>';}).join('')+'</select></div>'+
+      '<div class="field"><label>Текст обращения</label><textarea id="ni-message" placeholder="Кратко: что спрашивает клиент"></textarea></div>'+
+      '<div class="field note">Если телефон или ИИН совпадёт с уже существующим лидом — обращение автоматически присоединится к нему как новое взаимодействие (дедупликация, п.1.2).</div>'+
+    '</div>'+
+    '<div class="modal-foot"><button class="btn btn-ghost" data-act="close-modal">Отмена</button><button class="btn btn-primary" id="ni-submit">Создать</button></div>'
+  );
+  mountModal(html);
+  document.getElementById('ni-submit').addEventListener('click',function(){
+    var phone=document.getElementById('ni-phone').value.trim();
+    if(!phone){ toast('Укажите телефон',true); return; }
+    submitNewInquiry({
+      channel:document.getElementById('ni-channel').value,
+      phone:phone,
+      iin:document.getElementById('ni-iin').value.trim()||null,
+      fio:document.getElementById('ni-fio').value.trim()||null,
+      snp:document.getElementById('ni-snp').value,
+      message:document.getElementById('ni-message').value.trim()
+    });
+  });
+}
+function allSnps(){ return uniq(state.hunters.reduce(function(a,h){return a.concat(h.snps);},[])); }
+function iconWrap(name){ return '<svg width="15" height="15" viewBox="0 0 24 24">'+iconSvg(name)+'</svg>'; }
+
+function openRefusalModal(id){
+  var lead=state.leads.find(function(l){return l.id===id;});
+  if(!lead) return;
+  if(!canCloseDeal()){ toast('Недостаточно прав для закрытия сделки',true); return; }
+  var html=modalShell(
+    '<div class="modal-head"><h3>Закрыть заявку: '+esc(leadTitle(lead))+'</h3><button class="x" data-act="close-modal">'+iconWrap('x')+'</button></div>'+
+    '<div class="modal-body">'+
+      '<div class="field"><label>Причина отказа</label><select id="rf-reason">'+REFUSAL_REASONS.map(function(r){return '<option value="'+esc(r)+'">'+esc(r)+'</option>';}).join('')+'</select></div>'+
+      '<div class="field"><label>Комментарий (если «другое» или нужны детали)</label><textarea id="rf-comment"></textarea></div>'+
+    '</div>'+
+    '<div class="modal-foot"><button class="btn btn-ghost" data-act="close-modal">Отмена</button><button class="btn btn-danger btn-primary" id="rf-submit">Закрыть заявку</button></div>'
+  );
+  mountModal(html);
+  document.getElementById('rf-submit').addEventListener('click',function(){
+    closeDeal(lead,document.getElementById('rf-reason').value,document.getElementById('rf-comment').value.trim());
+    closeModal();
+    toast('Заявка закрыта');
+  });
+}
+
+function openVisitModal(id){
+  var lead=state.leads.find(function(l){return l.id===id;});
+  if(!lead||!lead.visit) return;
+  var v=lead.visit;
+  var html=modalShell(
+    '<div class="modal-head"><h3>Выезд/монтаж: '+esc(leadTitle(lead))+'</h3><button class="x" data-act="close-modal">'+iconWrap('x')+'</button></div>'+
+    '<div class="modal-body">'+
+      '<div class="field-row">'+
+        '<div class="field"><label>Дата и время выезда</label><input type="datetime-local" id="vi-planned" value="'+(v.plannedAt?toLocalInput(v.plannedAt):'')+'"/></div>'+
+        '<div class="field"><label>Статус выезда</label><select id="vi-status">'+VISIT_STATUS.map(function(s){return '<option value="'+s.key+'"'+(v.status===s.key?' selected':'')+'>'+s.label+'</option>';}).join('')+'</select></div>'+
+      '</div>'+
+      '<div class="field"><label>Причина переноса (если применимо)</label><input id="vi-postpone" value="'+esc(v.postponeReason||'')+'"/></div>'+
+      '<div class="field"><label>Исполнитель</label><input id="vi-executor" value="'+esc(v.executor||'')+'"/></div>'+
+      '<div class="field"><label>Результат выезда</label><select id="vi-result"><option value="">— не указан —</option>'+VISIT_RESULT.map(function(r){return '<option value="'+r.key+'"'+(v.result===r.key?' selected':'')+'>'+r.label+'</option>';}).join('')+'</select></div>'+
+      '<div class="field"><label>Комментарий к результату</label><textarea id="vi-comment">'+esc(v.resultComment||'')+'</textarea></div>'+
+    '</div>'+
+    '<div class="modal-foot"><button class="btn btn-ghost" data-act="close-modal">Отмена</button><button class="btn btn-primary" id="vi-submit">Сохранить</button></div>'
+  );
+  mountModal(html);
+  document.getElementById('vi-submit').addEventListener('click',function(){
+    var newVisit={
+      plannedAt:document.getElementById('vi-planned').value?new Date(document.getElementById('vi-planned').value).getTime():null,
+      status:document.getElementById('vi-status').value,
+      postponeReason:document.getElementById('vi-postpone').value.trim()||null,
+      executor:document.getElementById('vi-executor').value.trim()||null,
+      result:document.getElementById('vi-result').value||null,
+      resultComment:document.getElementById('vi-comment').value.trim()||null
+    };
+    if(newVisit.result==='no_tech'){
+      closeDeal(lead,'нет техвозможности','Выявлено на этапе выезда/монтажа');
+      closeModal(); toast('Заявка закрыта: нет техвозможности на месте'); return;
+    }
+    saveLead(lead.id,{visit:newVisit},'Обновлён статус выезда/монтажа: '+VISIT_STATUS_LABEL[newVisit.status]);
+    closeModal();
+  });
+}
+function toLocalInput(ts){
+  var d=new Date(ts-new Date().getTimezoneOffset()*60000);
+  return d.toISOString().slice(0,16);
+}
+
+function openRolesInfoModal(){
+  var html=modalShell(
+    '<div class="modal-head"><h3>Роли и матрица прав</h3><button class="x" data-act="close-modal">'+iconWrap('x')+'</button></div>'+
+    '<div class="modal-body">'+
+      '<div class="field note" style="margin-bottom:12px;">Матрица черновая и требует уточнения на этапе проектирования (п.5.2). Ниже — состояние, заложенное в этот прототип.</div>'+
+      '<div class="scrollx"><table class="data"><thead><tr><th>Действие</th><th>Контакт-центр</th><th>Хантер</th><th>Агент</th><th>Регпредставитель</th><th>Руководитель</th></tr></thead><tbody>'+
+      PERM_MATRIX.map(function(row){
+        return '<tr>'+row.map(function(cell,i){return '<td'+(i===0?'':' style="text-align:center"')+'>'+esc(cell)+'</td>';}).join('')+'</tr>';
+      }).join('')+
+      '</tbody></table></div>'+
+    '</div>'+
+    '<div class="modal-foot"><button class="btn btn-primary" data-act="close-modal">Понятно</button></div>'
+  );
+  mountModal(html);
+}
+
+/* ---------------- Lead / Client card modal ---------------- */
+function openLeadModal(id){
+  renderLeadModal(id,'card');
+}
+function renderLeadModal(id,tab){
+  var lead=state.leads.find(function(l){return l.id===id;});
+  if(!lead) return;
+  var idx=MAIN_ORDER.indexOf(lead.stage);
+  var canNext=lead.stage!=='closed'&&idx<MAIN_ORDER.length-1;
+  var canPrev=lead.stage!=='closed'&&idx>0;
+  var sla=slaInfo(lead), q=queueInfo(lead);
+
+  var badges=stageChip(lead.stage)+chChip(lead.channel);
+  if(sla&&sla.overdue) badges+='<span class="chip chip-critical">Просрочено по SLA</span>';
+  if(q) badges+= q.escalated?'<span class="chip chip-critical">Эскалировано</span>':'<span class="chip chip-warn">В очереди</span>';
+  if(lead.reactivationCount) badges+='<span class="chip chip-info">Реактиваций: '+lead.reactivationCount+'</span>';
+
+  var body='';
+  if(tab==='card'){
+    body+='<div class="kv" style="margin-bottom:14px;">'+
+      kv('ФИО',esc(lead.fio))+kv('Телефон','<span class="mono">'+fmtPhone(lead.phone)+'</span>')+
+      kv('ИИН','<span class="mono">'+maskIin(lead.iin,canSeeFullIin())+'</span>')+
+      kv('Адрес',esc(lead.address||'—'))+kv('СНП / БС',esc(lead.snp)+' / '+esc(lead.bs||'—'))+
+      kv('Источник',esc(CHANNEL_MAP[lead.channel].label)+(lead.utm?' · UTM: '+esc(lead.utm):''))+
+    '</div>';
+    body+=fieldset('Согласие на ПДн',
+      '<div class="field-row"><div class="field"><label>Дата получения</label><input id="ed-consentDate" type="date" value="'+(lead.consentDate?lead.consentDate.slice(0,10):'')+'"/></div>'+
+      '<div class="field"><label>Способ</label><select id="ed-consentMethod"><option value="">— не указан —</option>'+
+        ['устно','через форму','через мессенджер'].map(function(m){return '<option value="'+m+'"'+(lead.consentMethod===m?' selected':'')+'>'+m+'</option>';}).join('')+
+      '</select></div></div>');
+    body+=fieldset('Тариф и оборудование',
+      '<div class="field-row"><div class="field"><label>Тариф '+(tariffNeedsApproval()?'<span style="text-transform:none;font-weight:400;color:var(--warn)"> (по согласованию)</span>':'')+'</label>'+
+        '<input id="ed-tariff" value="'+esc(lead.tariff||'')+'" '+(canEditTariff()?'':'disabled')+'/></div>'+
+      '<div class="field"><label>Тариф до</label><input id="ed-tariffBefore" value="'+esc(lead.tariffBefore||'')+'" '+(canEditTariff()?'':'disabled')+'/></div></div>'+
+      '<div class="field-row"><div class="field"><label>Модель оборудования</label><input id="ed-equipModel" value="'+esc(lead.equipmentModel||'')+'"/></div>'+
+      '<div class="field"><label>Серийный номер</label><input id="ed-equipSerial" value="'+esc(lead.equipmentSerial||'')+'"/></div></div>');
+    if(lead.stage==='lead'||lead.stage==='inquiry'||lead.techCheck){
+      body+=fieldset('Техническая возможность (п.1.7)',
+        '<div class="field"><label>Результат проверки по СНП/БС</label><select id="ed-techCheck"><option value="">— не проверено —</option>'+
+        TECH_CHECK.map(function(t){return '<option value="'+t.key+'"'+(lead.techCheck===t.key?' selected':'')+'>'+t.label+'</option>';}).join('')+
+        '</select></div>');
+    }
+    if(lead.visit){
+      body+=fieldset('Выезд/монтаж',
+        '<div class="kv">'+kv('Дата выезда',fmtDateTime(lead.visit.plannedAt))+kv('Статус',VISIT_STATUS_LABEL[lead.visit.status]||'—')+
+        kv('Исполнитель',esc(lead.visit.executor||'—'))+kv('Результат',lead.visit.result?VISIT_RESULT_LABEL[lead.visit.result]:'—')+'</div>'+
+        '<button class="btn btn-sm" style="margin-top:8px" data-act="open-visit" data-id="'+lead.id+'">Изменить данные выезда</button>');
+    }
+    if(lead.stage==='assigned'){
+      body+=fieldset('Назначение хантера',
+        '<div class="kv">'+kv('Хантер',lead.assignment&&lead.assignment.hunter?esc(lead.assignment.hunter):'<span style="color:var(--warn)">в очереди</span>')+'</div>'+
+        (!lead.assignment||!lead.assignment.hunter?'<button class="btn btn-sm" style="margin-top:8px" data-act="reassign" data-id="'+lead.id+'">Назначить хантера сейчас</button>':''));
+    }
+    if(lead.stage==='closed'){
+      body+=fieldset('Причина отказа',
+        '<div class="kv">'+kv('Причина','<span class="chip chip-critical">'+esc(lead.refusalReason||'—')+'</span>')+kv('Комментарий',esc(lead.refusalComment||'—'))+'</div>');
+    }
+    body+='<div class="field"><label>Ответственный / оператор чата</label><div class="kv" style="grid-template-columns:140px 1fr">'+
+      kv('Владелец сделки',esc(lead.responsible||'не назначен'))+kv('Последний оператор',esc(lead.lastOperator||'—'))+'</div></div>';
+  } else if(tab==='history'){
+    var hist=(lead.history||[]).slice().sort(function(a,b){return b.at-a.at;});
+    body+='<div class="timeline">'+(hist.length?hist.map(function(h){
+      return '<div class="tl-item"><div class="t">'+fmtDateTime(h.at)+'</div><div class="c"><span class="actor">'+esc(h.actor)+'</span><br>'+esc(h.text)+'</div></div>';
+    }).join(''):emptyState('Истории пока нет'))+'</div>';
+  }
+
+  var footActions='';
+  if(canPrev) footActions+='<button class="btn btn-ghost btn-sm" data-act="advance" data-dir="prev" data-id="'+lead.id+'">← Назад</button>';
+  if(lead.stage!=='closed'&&canCloseDeal()) footActions+='<button class="btn btn-ghost btn-sm btn-danger" data-act="open-refusal" data-id="'+lead.id+'">Закрыть / Отказ</button>';
+  if(canNext) footActions+='<button class="btn btn-primary btn-sm" data-act="advance" data-dir="next" data-id="'+lead.id+'">Далее →</button>';
+
+  var html=modalShell(
+    '<div class="modal-head"><div><h3>'+esc(leadTitle(lead))+'</h3><div style="margin-top:6px">'+badges+'</div></div><button class="x" data-act="close-modal">'+iconWrap('x')+'</button></div>'+
+    '<div class="modal-body">'+
+      '<div class="tabs" data-tabgroup="lead"><button class="tab'+(tab==='card'?' active':'')+'" data-act="lm-tab" data-tab="card">Карточка</button><button class="tab'+(tab==='history'?' active':'')+'" data-act="lm-tab" data-tab="history">История ('+((lead.history||[]).length)+')</button></div>'+
+      '<div id="lead-modal-content">'+body+'</div>'+
+    '</div>'+
+    '<div class="modal-foot" style="justify-content:space-between"><div style="display:flex;gap:6px">'+footActions+'</div><button class="btn btn-sm" id="lm-save">Сохранить изменения</button></div>',
+    true
+  );
+  mountModal(html);
+  els.modalRoot.querySelectorAll('[data-act="lm-tab"]').forEach(function(btn){
+    btn.addEventListener('click',function(){ renderLeadModal(id,btn.getAttribute('data-tab')); });
+  });
+  var saveBtn=document.getElementById('lm-save');
+  if(saveBtn) saveBtn.addEventListener('click',function(){ commitLeadEdits(lead); });
+}
+function kv(k,v){ return '<dt>'+k+'</dt><dd>'+v+'</dd>'; }
+function fieldset(title,inner){ return '<fieldset><legend>'+title+'</legend>'+inner+'</fieldset>'; }
+function gv(id){ var el=document.getElementById(id); return el?el.value:undefined; }
+function commitLeadEdits(lead){
+  var updates={};
+  var cd=gv('ed-consentDate'); if(cd!==undefined) updates.consentDate=cd||null;
+  var cm=gv('ed-consentMethod'); if(cm!==undefined) updates.consentMethod=cm||null;
+  var tf=gv('ed-tariff'); if(tf!==undefined&&canEditTariff()) updates.tariff=tf||null;
+  var tb=gv('ed-tariffBefore'); if(tb!==undefined&&canEditTariff()) updates.tariffBefore=tb||null;
+  var em=gv('ed-equipModel'); if(em!==undefined) updates.equipmentModel=em||null;
+  var es=gv('ed-equipSerial'); if(es!==undefined) updates.equipmentSerial=es||null;
+  var tc=gv('ed-techCheck'); if(tc!==undefined) updates.techCheck=tc||null;
+  var text='Карточка обновлена'+(tariffNeedsApproval()&&tf!==undefined?' (изменение тарифа требует согласования)':'');
+  saveLead(lead.id,updates,text);
+  toast('Изменения сохранены');
+  closeModal();
+}
+
+/* ============================= DB INIT ============================= */
+function normalizeLead(doc){
+  var d=doc.data();
+  d.id=doc.id;
+  return d;
+}
+function initDb(){
+  claude.use('db').then(function(_db){
+    db=_db;
+    if(!db){ state.loading=false; renderAll(); toast('Хранилище недоступно в этом просмотре',true); return; }
+    db.collection('leads').onSnapshot(function(snap){
+      state.leads=snap.docs.map(normalizeLead);
+      state.loading=false;
+      scheduleRender();
+    },function(e){ toast('Ошибка загрузки заявок: '+e.message,true); });
+    db.doc('config/hunters').onSnapshot(function(snap){
+      if(snap.exists){
+        var d=snap.data();
+        state.hunters=d.list||[];
+        if(state.role==='Хантер'&&!state.hunterIdentity&&state.hunters.length) state.hunterIdentity=state.hunters[0].name;
+      }
+      scheduleRender();
+    });
+    db.doc('config/region').onSnapshot(function(snap){
+      if(snap.exists) state.regionRep=snap.data();
+      scheduleRender();
+    });
+    db.doc('config/adspend').onSnapshot(function(snap){
+      if(snap.exists) state.adspend=snap.data();
+      scheduleRender();
+    });
+  }).catch(function(){
+    state.loading=false; renderAll();
+  });
+}
+
+/* ============================= BOOT ============================= */
+function bootLocalDemo(){
+  LOCAL_MODE=true;
+  var saved=null;
+  try{ saved=JSON.parse(localStorage.getItem(LOCAL_KEY)||'null'); }catch(e){}
+  state.hunters=DEMO_SEED.hunters;
+  state.regionRep=DEMO_SEED.region;
+  state.adspend=(saved&&saved.adspend)?saved.adspend:DEMO_SEED.adspend;
+  state.leads=(saved&&saved.leads&&saved.leads.length)?saved.leads:DEMO_SEED.leads;
+  if(state.role==='Хантер'&&!state.hunterIdentity&&state.hunters.length) state.hunterIdentity=state.hunters[0].name;
+  state.loading=false;
+  renderAll();
+}
+function init(){
+  LOCAL_MODE=!(window.claude&&window.claude.use);
+  buildShell();
+  renderAll();
+  setInterval(function(){ state.now=Date.now(); scheduleRender(); },20000);
+  if(!LOCAL_MODE){ initDb(); }
+  else { bootLocalDemo(); }
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+else init();
+
+})();
+</script>
+</body>
+</html>
