@@ -659,7 +659,9 @@ function buildShell(){
     '<nav class="nav" id="nav"></nav>'+
     '<div class="side-foot">'+
       '<button class="link-btn" data-act="rolesInfo">Матрица прав и роли</button>'+
+      /* Кнопка "Очистить все данные" скрыта от всех пользователей по запросу — раскомментировать при необходимости.
       (LOCAL_MODE?'<button class="link-btn" data-act="resetDemo">Очистить все данные</button>':'')+
+      */
       '<div class="compliance-card">'+
         '<div class="row"><svg viewBox="0 0 24 24">'+iconSvg('shield')+'</svg><span>Сервер БД — территория РК (закон «О персональных данных»)</span></div>'+
         '<div class="row"><svg viewBox="0 0 24 24">'+iconSvg('shield')+'</svg><span>Согласие на обработку ПДн фиксируется в карточке клиента</span></div>'+
